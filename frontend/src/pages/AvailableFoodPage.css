@@ -1,0 +1,78 @@
+/* frontend/src/pages/AvailableFoodPage.css */
+
+.available-food-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.available-food-container h1 {
+  text-align: center;
+  font-size: 2.5rem;
+  color: #2c5e1a;
+  margin-bottom: 2rem;
+}
+
+.food-grid {
+  display: grid;
+  /* This creates a responsive grid that makes as many 300px columns as will fit */
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.food-card {
+  background-color: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column; /* Allows us to push the button to the bottom */
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.food-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.food-card h3 {
+  font-size: 1.5rem;
+  color: #333;
+  margin: 0 0 1rem 0;
+}
+
+.food-card p {
+  color: #555;
+  margin: 0.25rem 0;
+  line-height: 1.5;
+}
+
+.food-card p strong {
+  color: #333;
+}
+
+.claim-button {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  background-color: #f39c12;
+  color: white;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: auto; /* This is the magic that pushes the button to the bottom */
+  transition: background-color 0.3s ease;
+}
+
+.claim-button:hover {
+  background-color: #e67e22;
+}
+
+.no-food-message {
+  text-align: center;
+  font-size: 1.2rem;
+  color: #666;
+  padding: 3rem;
+}

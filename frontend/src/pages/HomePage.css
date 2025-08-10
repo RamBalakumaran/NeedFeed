@@ -1,0 +1,153 @@
+/* frontend/src/pages/HomePage.css */
+
+/* --- Hero Section (Top Welcome Area) --- */
+.hero-section {
+  height: calc(100vh - 70px); /* Full screen height minus navbar */
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('../assets/background.jpg');
+  background-size: cover;
+  background-position: center;
+  color: white;
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+.hero-content h1 {
+  font-size: 3.5rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+.hero-content p {
+  font-size: 1.25rem;
+  max-width: 600px;
+  margin: 0 auto 2rem auto;
+}
+
+.hero-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.hero-button {
+  padding: 12px 24px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 1rem;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.hero-button.primary {
+  background-color: #f39c12;
+  color: white;
+  border: 2px solid #f39c12;
+}
+
+.hero-button.primary:hover {
+  background-color: #e67e22;
+  border-color: #e67e22;
+}
+
+.hero-button.secondary {
+  background-color: transparent;
+  color: white;
+  border: 2px solid white;
+}
+
+.hero-button.secondary:hover {
+  background-color: white;
+  color: #2c5e1a;
+}
+
+/* --- General Styling for All Sections --- */
+.page-section {
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.page-section h1 {
+  font-size: 2.5rem;
+  color: #2c5e1a;
+  margin-bottom: 1rem;
+}
+
+.page-section .section-intro {
+  font-size: 1.1rem;
+  color: #555;
+  max-width: 700px;
+  margin: 0 auto 3rem auto;
+}
+
+/* Alternating background colors for sections */
+.page-section:nth-of-type(even) {
+  background-color: #f9fafb;
+}
+
+/* --- Service Section Specifics --- */
+.service-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.service-card {
+  background: white;
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.07);
+}
+
+.service-card h3 {
+  margin-top: 0;
+  color: #333;
+}
+
+/* --- About Us Section Specifics --- */
+.about-content {
+  max-width: 800px;
+  margin: 0 auto;
+  line-height: 1.7;
+  font-size: 1.1rem;
+}
+
+/* --- Contact Us Section Specifics --- */
+.contact-form-simple {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.contact-form-simple input,
+.contact-form-simple textarea {
+  padding: 12px 15px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: inherit;
+}
+
+.contact-form-simple button {
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  background-color: #f39c12;
+  color: white;
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.contact-form-simple button:hover {
+  background-color: #e67e22;
+}

@@ -1,0 +1,101 @@
+/* frontend/src/pages/RegisterPage.css */
+
+.register-page-container {
+  /* Full screen container */
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  
+  /* The same background image for consistency */
+  background-image: url('../assets/background.jpg'); /* Make sure this path is correct! */
+  background-size: cover;
+  background-position: center;
+  font-family: 'Segoe UI', 'Roboto', sans-serif;
+}
+
+.register-form-container {
+  /* The semi-transparent "glass" card */
+  background-color: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(8px); /* The frosted glass effect */
+  
+  /* Layout and styling for the card */
+  padding: 2rem 3rem;
+  border-radius: 15px;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  text-align: center;
+  width: 100%;
+  max-width: 400px;
+}
+
+.register-form-container h1 {
+  /* App Name Styling */
+  font-size: 3rem;
+  font-weight: bold;
+  color: #2c5e1a; /* A deep, food-related green */
+  margin-bottom: 0.5rem;
+}
+
+.register-form-container h2 {
+  font-size: 1.2rem;
+  color: #555;
+  margin-bottom: 2rem;
+}
+
+.input-group {
+  margin-bottom: 1.5rem;
+  text-align: left;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+  box-sizing: border-box; 
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: #f39c12; /* Warm orange focus color */
+  box-shadow: 0 0 5px rgba(243, 156, 18, 0.5);
+}
+
+.register-button {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  background-color: #f39c12; /* Warm orange call-to-action */
+  color: white;
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.1s ease;
+}
+
+.register-button:hover {
+  background-color: #e67e22; /* Slightly darker orange on hover */
+}
+
+.register-button:active {
+  transform: scale(0.98); /* Click effect */
+}
+
+.login-link {
+  margin-top: 1.5rem;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.login-link a {
+  color: #2c5e1a; /* Deep green for the link */
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.login-link a:hover {
+  text-decoration: underline;
+}

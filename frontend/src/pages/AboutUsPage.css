@@ -1,0 +1,51 @@
+/* frontend/src/pages/AboutUsPage.css */
+
+.static-page-container {
+  display: flex;
+  justify-content: center;
+  padding: 3rem 1rem;
+  background-color: #f9fafb;
+}
+
+.static-page-content {
+  background-color: white;
+  padding: 3rem;
+  border-radius: 15px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  width: 100%;
+  max-width: 900px;
+}
+
+.static-page-content h1 {
+  font-size: 2.5rem;
+  color: #2c5e1a;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.static-page-content .mission-statement {
+  text-align: center;
+  font-size: 1.25rem;
+  color: #555;
+  margin-bottom: 3rem;
+  font-style: italic;
+}
+
+.static-page-content h2 {
+  font-size: 1.8rem;
+  color: #333;
+  border-bottom: 2px solid #f39c12;
+  padding-bottom: 0.5rem;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+
+.static-page-content p, .static-page-content li {
+  font-size: 1.1rem;
+  line-height: 1.7;
+  color: #444;
+}
+
+.static-page-content ol {
+  padding-left: 2rem;
+}
