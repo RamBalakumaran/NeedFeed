@@ -1,14 +1,14 @@
-/* frontend/src/styles/global.css */
+
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
     Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   margin: 0;
-  /* A light background color for pages that aren't full-screen */
+ 
   background-color: #f9fafb;
 }
 
-/* New Navbar Styles */
+
 .main-nav {
   display: flex;
   justify-content: space-between;
@@ -17,15 +17,39 @@ body {
   height: 70px;
   background-color: white;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  position: sticky; /* Makes the navbar stick to the top */
+  position: sticky; 
   top: 0;
   z-index: 1000;
 }
 
+
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.main-content {
+  flex: 1;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+    Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  margin: 0;
+  background-color: #f9fafb;
+}
+
+
 .nav-left .nav-brand {
   font-size: 1.8rem;
   font-weight: bold;
-  color: #2c5e1a; /* Deep green from previous design */
+  color: #2c5e1a; 
   text-decoration: none;
 }
 
@@ -43,7 +67,7 @@ body {
 }
 
 .nav-right .nav-link:hover {
-  color: #f39c12; /* Warm orange from previous design */
+  color: #f39c12; 
 }
 
 .nav-right .nav-button {
