@@ -1,13 +1,10 @@
-// backend/routes/feed.js
 const express = require('express');
 const router = express.Router();
 const db = require('../db');
 
 // Post a new food donation
 router.post('/donate', (req, res) => {
-  // Log the data received from the frontend to see what's coming in
   console.log('Received data for donation:', req.body);
-
   const { foodName, quantity, expiry, location } = req.body;
   const query = 'INSERT INTO donations (foodName, quantity, expiry, location, status) VALUES (?, ?, ?, ?, ?)';
   const values = [foodName, quantity, expiry, location, 'available'];
