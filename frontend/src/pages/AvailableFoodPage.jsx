@@ -1,7 +1,6 @@
-// frontend/src/pages/AvailableFoodPage.jsx
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import './AvailableFoodPage.css'; // Import the new CSS
+import './AvailableFoodPage.css';
 
 const AvailableFoodPage = () => {
   const [foods, setFoods] = useState([]);

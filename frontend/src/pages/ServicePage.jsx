@@ -1,7 +1,6 @@
-// frontend/src/pages/ServicePage.jsx
 import React from 'react';
 import { Link } from 'react-router-dom';
-import './AboutUsPage.css'; // We can reuse the same CSS file for a consistent look
+import './AboutUsPage.css'; 
 
 const ServicePage = () => {
   return (

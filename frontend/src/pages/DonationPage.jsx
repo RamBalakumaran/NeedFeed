@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import './DonationPage.css'; // Import the new CSS
+import './DonationPage.css';
 
 const DonationPage = () => {
   const [formData, setFormData] = useState({ foodName: '', quantity: '', expiry: '', location: '' });

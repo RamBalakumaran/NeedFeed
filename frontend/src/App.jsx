@@ -1,16 +1,15 @@
-// frontend/src/App.jsx
+
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes, Link, useNavigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 
-// Import all necessary page components
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import DonationPage from './pages/DonationPage';
 import AvailableFoodPage from './pages/AvailableFoodPage';
-import Footer from './pages/Footer'; // Assuming you have a Footer component
+import Footer from './pages/Footer';
 
 // --- Main Navigation Component with Scrolling Logic ---
 const Navigation = () => {

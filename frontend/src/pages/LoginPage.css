@@ -1,16 +1,13 @@
-/* frontend/src/pages/LoginPage.css */
-
 .login-page-container {
-  /* Full screen container */
+  
   height: 100vh;
   width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
 
-  /* The magic: the background image */
   background-image: url('../assets/background.jpg');
-  /* Make sure this path is correct! */
+
   background-size: cover;
   background-position: center;
   font-family: 'Segoe UI', 'Roboto', sans-serif;

@@ -1,9 +1,6 @@
-// frontend/src/pages/RegisterPage.jsx
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
-
-// Import the new CSS file
 import './RegisterPage.css';
 
 const RegisterPage = () => {
@@ -17,7 +14,6 @@ const RegisterPage = () => {
     try {
       const response = await axios.post('http://localhost:3001/api/user/register', { email, password });
       setMessage("Registration successful! Redirecting to login...");
-      // Redirect to login page on successful registration after a short delay
       setTimeout(() => navigate('/login'), 2000);
     } catch (error) {
       setMessage(error.response?.data?.message || 'Registration failed');

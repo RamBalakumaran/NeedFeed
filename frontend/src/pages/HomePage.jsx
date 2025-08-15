@@ -1,9 +1,9 @@
-// frontend/src/pages/HomePage.jsx
-import React from 'react'; // We no longer need useState or useEffect here for the animation
+
+import React from 'react'; 
 import { Link } from 'react-router-dom';
 import { useInView } from 'react-intersection-observer';
 
-// Import the new library components for the typewriter effect
+
 import { useTypewriter, Cursor } from 'react-simple-typewriter';
 
 import './HomePage.css';

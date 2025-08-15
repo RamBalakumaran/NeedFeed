@@ -1,4 +1,3 @@
-// frontend/src/pages/AboutUsPage.jsx
 import React from 'react';
 import './AboutUsPage.css';
 

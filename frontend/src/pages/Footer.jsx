@@ -1,12 +1,8 @@
-// frontend/src/components/Footer.jsx
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import './Footer.css'; // We will create this CSS file next
-
+import './Footer.css'; 
 const Footer = () => {
     const navigate = useNavigate();
-
-    // Re-using the same scroll logic from the Navbar for consistency
     const handleScroll = (e, targetId) => {
         e.preventDefault();
         if (window.location.pathname !== '/') {

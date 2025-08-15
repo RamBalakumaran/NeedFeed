@@ -1,28 +1,19 @@
-/* frontend/src/pages/RegisterPage.css */
-
 .register-page-container {
-  /* Full screen container */
+
   height: 100vh;
   width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
-
-  /* The same background image for consistency */
   background-image: url('../assets/background.jpg');
-  /* Make sure this path is correct! */
   background-size: cover;
   background-position: center;
   font-family: 'Segoe UI', 'Roboto', sans-serif;
 }
 
 .register-form-container {
-  /* The semi-transparent "glass" card */
   background-color: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(8px);
-  /* The frosted glass effect */
-
-  /* Layout and styling for the card */
   padding: 2rem 3rem;
   border-radius: 15px;
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
@@ -32,11 +23,11 @@
 }
 
 .register-form-container h1 {
-  /* App Name Styling */
+
   font-size: 3rem;
   font-weight: bold;
   color: #2c5e1a;
-  /* A deep, food-related green */
+
   margin-bottom: 0.5rem;
 }
 

@@ -1,11 +1,9 @@
-/* frontend/src/pages/DonationPage.css */
-
 .donation-page-container {
   display: flex;
   justify-content: center;
   padding: 3rem 1rem;
   background-color: #f9fafb;
-  /* Light gray background */
+
 }
 
 .donation-form-card {
