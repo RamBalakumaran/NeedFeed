@@ -11,7 +11,7 @@ const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
-  
+
   const { setAuthToken } = useAuth();
   const navigate = useNavigate();
 
@@ -20,7 +20,7 @@ const LoginPage = () => {
     try {
       const response = await axios.post('http://localhost:3001/api/user/login', { email, password });
       setAuthToken(response.data.token);
-      navigate('/available'); 
+      navigate('/available');
     } catch (error) {
       setMessage(error.response?.data?.message || 'Login failed');
     }
@@ -34,21 +34,21 @@ const LoginPage = () => {
 
         <form onSubmit={handleLogin}>
           <div className="input-group">
-            <input 
-              type="email" 
-              value={email} 
-              onChange={e => setEmail(e.target.value)} 
-              placeholder="Email Address" 
-              required 
+            <input
+              type="email"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              placeholder="Email Address"
+              required
             />
           </div>
           <div className="input-group">
-            <input 
-              type="password" 
-              value={password} 
-              onChange={e => setPassword(e.target.value)} 
-              placeholder="Password" 
-              required 
+            <input
+              type="password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              placeholder="Password"
+              required
             />
           </div>
           <button type="submit" className="login-button">Login</button>

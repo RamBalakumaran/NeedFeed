@@ -7,9 +7,10 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  
+
   /* The magic: the background image */
-  background-image: url('../assets/background.jpg'); /* Make sure this path is correct! */
+  background-image: url('../assets/background.jpg');
+  /* Make sure this path is correct! */
   background-size: cover;
   background-position: center;
   font-family: 'Segoe UI', 'Roboto', sans-serif;
@@ -18,8 +19,9 @@
 .login-form-container {
   /* The semi-transparent "glass" card */
   background-color: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(8px); /* This creates the frosted glass effect */
-  
+  backdrop-filter: blur(8px);
+  /* This creates the frosted glass effect */
+
   /* Layout and styling for the card */
   padding: 2rem 3rem;
   border-radius: 15px;
@@ -33,7 +35,8 @@
   /* App Name Styling */
   font-size: 3rem;
   font-weight: bold;
-  color: #2c5e1a; /* A deep, food-related green */
+  color: #2c5e1a;
+  /* A deep, food-related green */
   margin-bottom: 0.5rem;
 }
 
@@ -54,12 +57,14 @@
   border: 1px solid #ccc;
   border-radius: 8px;
   font-size: 1rem;
-  box-sizing: border-box; /* Important for padding to not affect width */
+  box-sizing: border-box;
+  /* Important for padding to not affect width */
 }
 
 .input-group input:focus {
   outline: none;
-  border-color: #f39c12; /* A warm, inviting orange for focus */
+  border-color: #f39c12;
+  /* A warm, inviting orange for focus */
   box-shadow: 0 0 5px rgba(243, 156, 18, 0.5);
 }
 
@@ -68,7 +73,8 @@
   padding: 12px;
   border: none;
   border-radius: 8px;
-  background-color: #f39c12; /* Warm orange call-to-action */
+  background-color: #f39c12;
+  /* Warm orange call-to-action */
   color: white;
   font-size: 1.2rem;
   font-weight: bold;
@@ -77,11 +83,13 @@
 }
 
 .login-button:hover {
-  background-color: #e67e22; /* A slightly darker orange on hover */
+  background-color: #e67e22;
+  /* A slightly darker orange on hover */
 }
 
 .login-button:active {
-  transform: scale(0.98); /* Click effect */
+  transform: scale(0.98);
+  /* Click effect */
 }
 
 .register-link {
@@ -91,7 +99,8 @@
 }
 
 .register-link a {
-  color: #2c5e1a; /* Deep green for the link */
+  color: #2c5e1a;
+  /* Deep green for the link */
   font-weight: bold;
   text-decoration: none;
 }

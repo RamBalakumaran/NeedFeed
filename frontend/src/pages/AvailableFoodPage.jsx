@@ -22,11 +22,11 @@ const AvailableFoodPage = () => {
 
   const handlePlaceOrder = async (id) => {
     try {
-        await axios.post(`http://localhost:3001/api/feed/order/${id}`);
-        setMessage('Order placed successfully! Please coordinate pickup.');
-        fetchAvailableFoods(); // Refresh list after ordering
+      await axios.post(`http://localhost:3001/api/feed/order/${id}`);
+      setMessage('Order placed successfully! Please coordinate pickup.');
+      fetchAvailableFoods(); // Refresh list after ordering
     } catch (error) {
-        setMessage(error.response?.data?.message || 'Failed to place order.');
+      setMessage(error.response?.data?.message || 'Failed to place order.');
     }
   };
 

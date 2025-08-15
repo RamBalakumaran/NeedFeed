@@ -33,7 +33,8 @@
 
 .contact-body {
   display: grid;
-  grid-template-columns: 2fr 1fr; /* 2/3 for the form, 1/3 for the info */
+  grid-template-columns: 2fr 1fr;
+  /* 2/3 for the form, 1/3 for the info */
   gap: 3rem;
 }
 

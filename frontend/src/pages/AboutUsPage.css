@@ -40,7 +40,8 @@
   margin-bottom: 1rem;
 }
 
-.static-page-content p, .static-page-content li {
+.static-page-content p,
+.static-page-content li {
   font-size: 1.1rem;
   line-height: 1.7;
   color: #444;

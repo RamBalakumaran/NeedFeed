@@ -32,21 +32,21 @@ const RegisterPage = () => {
 
         <form onSubmit={handleRegister}>
           <div className="input-group">
-            <input 
-              type="email" 
-              value={email} 
-              onChange={e => setEmail(e.target.value)} 
-              placeholder="Email Address" 
-              required 
+            <input
+              type="email"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              placeholder="Email Address"
+              required
             />
           </div>
           <div className="input-group">
-            <input 
-              type="password" 
-              value={password} 
-              onChange={e => setPassword(e.target.value)} 
-              placeholder="Password" 
-              required 
+            <input
+              type="password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              placeholder="Password"
+              required
             />
           </div>
           <button type="submit" className="register-button">Create Account</button>

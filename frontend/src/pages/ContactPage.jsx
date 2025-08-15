@@ -30,7 +30,7 @@ const ContactPage = () => {
           <h1>Get In Touch</h1>
           <p>We'd love to hear from you. Whether you have a question, feedback, or want to partner with us, drop us a line!</p>
         </div>
-        
+
         <div className="contact-body">
           {/* Left Side: Contact Form */}
           <div className="contact-form">

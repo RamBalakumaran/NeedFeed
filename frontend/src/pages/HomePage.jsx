@@ -31,9 +31,9 @@ const CountUp = ({ end, duration = 2000 }) => {
         if (start === endValue) return;
         const incrementTime = (duration / endValue) * 1;
         const timer = setInterval(() => {
-        start += 1;
-        setCount(start);
-        if (start === endValue) clearInterval(timer);
+            start += 1;
+            setCount(start);
+            if (start === endValue) clearInterval(timer);
         }, incrementTime);
         return () => clearInterval(timer);
     }, [end, duration]);
@@ -56,7 +56,7 @@ const HeroSection = () => {
             <div className="hero-content">
                 <h1>Welcome to NeedFeed</h1>
                 <p className="animated-tagline">
-                    Connecting surplus food with those in need. 
+                    Connecting surplus food with those in need.
                     {/* The new typewriter effect is rendered here */}
                     <span className="typewriter-text">{typeEffect}</span>
                     {/* The library provides its own cursor component */}
@@ -130,15 +130,15 @@ const ContactSection = () => (
 
 // --- Main HomePage Component (No Changes Here) ---
 const HomePage = () => {
-  return (
-    <>
-      <HeroSection />
-      <HowItWorksSection />
-      <AboutSection />
-      <TestimonialsSection />
-      <ContactSection />
-    </>
-  );
+    return (
+        <>
+            <HeroSection />
+            <HowItWorksSection />
+            <AboutSection />
+            <TestimonialsSection />
+            <ContactSection />
+        </>
+    );
 };
 
 export default HomePage;
