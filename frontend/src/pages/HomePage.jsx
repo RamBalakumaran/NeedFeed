@@ -1,16 +1,18 @@
 // frontend/src/pages/HomePage.jsx
-import React, { useState, useEffect } from 'react';
+import React from 'react'; // We no longer need useState or useEffect here for the animation
 import { Link } from 'react-router-dom';
 import { useInView } from 'react-intersection-observer';
+
+// Import the new library components for the typewriter effect
+import { useTypewriter, Cursor } from 'react-simple-typewriter';
+
 import './HomePage.css';
 import aboutImage from '../assets/about-image.jpg';
-
-// Import the SVG icons
 import DonateIcon from '../assets/icons/donate-icon.svg';
 import NotifyIcon from '../assets/icons/notify-icon.svg';
 import DistributeIcon from '../assets/icons/distribute-icon.svg';
 
-// --- Reusable AnimatedSection Component ---
+// --- Reusable AnimatedSection Component (No Changes Here) ---
 const AnimatedSection = ({ children, className = '', id = '' }) => {
     const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.1 });
     return (
@@ -20,11 +22,10 @@ const AnimatedSection = ({ children, className = '', id = '' }) => {
     );
 };
 
-// --- Reusable CountUp Component ---
+// --- Reusable CountUp Component (No Changes Here) ---
 const CountUp = ({ end, duration = 2000 }) => {
-    // ... (This component's code remains the same as the previous "attractive" version)
-    const [count, setCount] = useState(0);
-    useEffect(() => {
+    const [count, setCount] = React.useState(0);
+    React.useEffect(() => {
         let start = 0;
         const endValue = parseInt(end, 10);
         if (start === endValue) return;
@@ -40,30 +41,27 @@ const CountUp = ({ end, duration = 2000 }) => {
 };
 
 
-// --- HeroSection Component ---
+// --- UPDATED HeroSection Component ---
 const HeroSection = () => {
-    // ... (This component's code remains the same as the previous "attractive" version)
-    const [text, setText] = useState('');
-    const toRotate = ["Reduce Waste.", "Feed the Hungry.", "Build Community."];
-    const [loopNum, setLoopNum] = useState(0);
-    const [isDeleting, setIsDeleting] = useState(false);
-    useEffect(() => {
-        let ticker = setInterval(() => { tick(); }, isDeleting ? 100 : 200);
-        return () => clearInterval(ticker);
+    // This hook from the library now handles all the animation logic
+    const [typeEffect] = useTypewriter({
+        words: ["Reduce Waste.", "Feed the Hungry.", "Build Community."],
+        loop: {}, // An empty object means it will loop indefinitely
+        typeSpeed: 120,
+        deleteSpeed: 80,
     });
-    const tick = () => {
-        let i = loopNum % toRotate.length;
-        let fullText = toRotate[i];
-        let updatedText = isDeleting ? fullText.substring(0, text.length - 1) : fullText.substring(0, text.length + 1);
-        setText(updatedText);
-        if (!isDeleting && updatedText === fullText) { setIsDeleting(true); } 
-        else if (isDeleting && updatedText === '') { setIsDeleting(false); setLoopNum(loopNum + 1); }
-    };
+
     return (
         <div className="hero-section">
             <div className="hero-content">
                 <h1>Welcome to NeedFeed</h1>
-                <p className="animated-tagline">Connecting surplus food with those in need. <span className="txt-rotate">{text}</span><span className="cursor">|</span></p>
+                <p className="animated-tagline">
+                    Connecting surplus food with those in need. 
+                    {/* The new typewriter effect is rendered here */}
+                    <span className="typewriter-text">{typeEffect}</span>
+                    {/* The library provides its own cursor component */}
+                    <Cursor cursorStyle='|' />
+                </p>
                 <div className="hero-actions">
                     <Link to="/login" className="hero-button primary">Login to Continue</Link>
                     <Link to="/register" className="hero-button secondary">Join Our Mission</Link>
@@ -73,7 +71,8 @@ const HeroSection = () => {
     );
 };
 
-// --- HowItWorksSection Component ---
+
+// --- HowItWorksSection Component (No Changes Here) ---
 const HowItWorksSection = () => (
     <AnimatedSection className="page-section" id="how-it-works">
         <h1 className="section-title">How It Works</h1>
@@ -85,7 +84,7 @@ const HowItWorksSection = () => (
     </AnimatedSection>
 );
 
-// --- AboutSection Component ---
+// --- AboutSection Component (No Changes Here) ---
 const AboutSection = () => (
     <AnimatedSection className="page-section about-section-bg" id="about">
         <div className="about-container">
@@ -103,7 +102,7 @@ const AboutSection = () => (
     </AnimatedSection>
 );
 
-// --- TestimonialsSection Component ---
+// --- TestimonialsSection Component (No Changes Here) ---
 const TestimonialsSection = () => (
     <AnimatedSection className="page-section testimonials-section-bg">
         <h1 className="section-title">What Our Community Says</h1>
@@ -115,8 +114,7 @@ const TestimonialsSection = () => (
     </AnimatedSection>
 );
 
-
-// --- NEW Contact Us Section ---
+// --- ContactSection Component (No Changes Here) ---
 const ContactSection = () => (
     <AnimatedSection className="page-section" id="contact-us">
         <h1 className="section-title">Contact Us</h1>
@@ -130,8 +128,7 @@ const ContactSection = () => (
     </AnimatedSection>
 );
 
-
-// --- Main HomePage Component that assembles all sections ---
+// --- Main HomePage Component (No Changes Here) ---
 const HomePage = () => {
   return (
     <>
