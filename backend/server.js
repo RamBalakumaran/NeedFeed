@@ -2,15 +2,15 @@
 const express = require('express');
 const cors = require('cors');
 const userRoutes = require('./routes/user');
-const feedRoutes = require('./routes/feed');
+const feedRoutes = require('./routes/feed'); // <-- Ensure this file exists
 
 const app = express();
-const port = 3001; // Port for the backend
+const port = 3001;
 
 app.use(cors());
 app.use(express.json());
 
-// API Routes
+// Routes
 app.use('/api/user', userRoutes);
 app.use('/api/feed', feedRoutes);
 
