@@ -1,13 +1,21 @@
-// backend/routes/user.js
 const express = require('express');
 const router = express.Router();
-const db = require('../db'); // <-- Ensure this file exists
+const db = require('../db');
 const jwt = require('jsonwebtoken');
 const multer = require('multer');
-const authenticateJWT = require('../middleware/auth'); // <-- Ensure this file exists
+const authenticateJWT = require('../middleware/auth');
+const path = require('path');
 
 // === Multer setup ===
-const upload = multer({ dest: "uploads/" });
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, 'uploads/'),
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname);
+    const uniqueName = `${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
+    cb(null, uniqueName);
+  }
+});
+const upload = multer({ storage });
 
 // === USER REGISTRATION ===
 router.post('/register', (req, res) => {
@@ -53,7 +61,6 @@ router.post('/register', (req, res) => {
 
       const userId = result.insertId;
 
-      // Role-based inserts
       if (role === 'donor') {
         db.query(
           `INSERT INTO donors (user_id, donorType, foodType, availabilityTime) VALUES (?, ?, ?, ?)`,
@@ -127,7 +134,6 @@ router.get('/profile', authenticateJWT, (req, res) => {
 
     const user = results[0];
 
-    // Fetch role details
     if (user.role === "donor") {
       db.query("SELECT donorType, foodType, availabilityTime FROM donors WHERE user_id = ?", [userId], (err, donorRes) => {
         if (err) return res.status(500).json({ message: "Error fetching donor details" });
@@ -150,27 +156,103 @@ router.get('/profile', authenticateJWT, (req, res) => {
 });
 
 // === UPDATE PROFILE ===
-router.put('/profile', authenticateJWT, (req, res) => {
+router.put('/profile', authenticateJWT, upload.single("profileImage"), (req, res) => {
   const userId = req.user.id;
-  const { name, phone, address, city, pincode } = req.body;
+  const role = req.user.role;
 
-  db.query(
-    "UPDATE users SET name=?, phone=?, address=?, city=?, pincode=? WHERE id=?",
-    [name, phone, address, city, pincode, userId],
-    (err) => {
-      if (err) return res.status(500).json({ message: "Error updating profile" });
-      res.json({ message: "Profile updated successfully" });
-    }
-  );
+  const {
+    name,
+    phone,
+    address,
+    city,
+    pincode,
+    preferredArea,
+    vehicleType,
+    availability,
+    donorType,
+    foodType,
+    availabilityTime,
+    ngoName,
+    licenseNumber,
+    capacity,
+    ngoFoodType
+  } = req.body;
+
+  db.query("SELECT * FROM users WHERE id = ?", [userId], (err, userRes) => {
+    if (err || !userRes.length) return res.status(500).json({ message: "Error fetching user" });
+    const currentUser = userRes[0];
+
+    const updates = {
+      name: name ?? currentUser.name,
+      phone: phone ?? currentUser.phone,
+      address: address ?? currentUser.address,
+      city: city ?? currentUser.city,
+      pincode: pincode ?? currentUser.pincode,
+    };
+
+    db.query(
+      "UPDATE users SET name=?, phone=?, address=?, city=?, pincode=? WHERE id=?",
+      [updates.name, updates.phone, updates.address, updates.city, updates.pincode, userId],
+      (err) => {
+        if (err) return res.status(500).json({ message: "Error updating user" });
+
+        if (req.file) {
+          const photoPath = req.file.path.replace(/\\/g, "/");
+          db.query("UPDATE users SET profile_photo=? WHERE id=?", [photoPath, userId], (err) => {
+            if (err) console.error("Error saving profile photo:", err);
+          });
+        }
+
+        const finish = () => res.json({ message: "Profile updated successfully" });
+
+        if (role === "volunteer") {
+          db.query("SELECT * FROM volunteers WHERE user_id = ?", [userId], (err, volRes) => {
+            const cur = volRes[0] || {};
+            db.query(
+              "UPDATE volunteers SET preferredArea=?, vehicleType=?, availability=? WHERE user_id=?",
+              [preferredArea ?? cur.preferredArea, vehicleType ?? cur.vehicleType, availability ?? cur.availability, userId],
+              (err) => (err ? res.status(500).json({ message: "Error updating volunteer" }) : finish())
+            );
+          });
+        } else if (role === "donor") {
+          db.query("SELECT * FROM donors WHERE user_id = ?", [userId], (err, donRes) => {
+            const cur = donRes[0] || {};
+            db.query(
+              "UPDATE donors SET donorType=?, foodType=?, availabilityTime=? WHERE user_id=?",
+              [donorType ?? cur.donorType, foodType ?? cur.foodType, availabilityTime ?? cur.availabilityTime, userId],
+              (err) => (err ? res.status(500).json({ message: "Error updating donor" }) : finish())
+            );
+          });
+        } else if (role === "ngo") {
+          db.query("SELECT * FROM ngos WHERE user_id = ?", [userId], (err, ngoRes) => {
+            const cur = ngoRes[0] || {};
+            db.query(
+              "UPDATE ngos SET ngoName=?, licenseNumber=?, capacity=?, foodType=? WHERE user_id=?",
+              [ngoName ?? cur.ngoName, licenseNumber ?? cur.licenseNumber, capacity ?? cur.capacity, ngoFoodType ?? cur.foodType, userId],
+              (err) => (err ? res.status(500).json({ message: "Error updating NGO" }) : finish())
+            );
+          });
+        } else finish();
+      }
+    );
+  });
 });
 
-// === UPLOAD PROFILE PHOTO ===
+// === UPLOAD PROFILE PHOTO (optional) ===
 router.post("/upload-profile-photo", authenticateJWT, upload.single("profilePhoto"), (req, res) => {
   const userId = req.user.id;
-  const photoPath = req.file.path;
+  
+  if (!req.file) {
+    return res.status(400).json({ message: "No file uploaded" });
+  }
+
+ const photoPath = req.file.path.replace(/\\/g, "/"); 
 
   db.query("UPDATE users SET profile_photo=? WHERE id=?", [photoPath, userId], (err) => {
-    if (err) return res.status(500).json({ message: "Error saving profile photo" });
+    if (err) {
+      console.error("Error saving profile photo:", err);
+      return res.status(500).json({ message: "Error saving profile photo" });
+    }
     res.json({ message: "Profile photo uploaded successfully" });
   });
 });
