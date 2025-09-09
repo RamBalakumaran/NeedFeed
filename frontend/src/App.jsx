@@ -22,7 +22,7 @@ function App() {
           <main className="main-content">
             <Routes>
               {/* Default redirect to login */}
-              <Route path="/" element={<Navigate to="/login" />} />
+              <Route path="/" element={<Navigate to="/home" />} />
 
               {/* Public Routes */}
               <Route path="/home" element={<HomePage />} />

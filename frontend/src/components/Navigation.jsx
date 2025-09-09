@@ -18,7 +18,6 @@ const Navigation = () => {
       document.getElementById(targetId)?.scrollIntoView({ behavior: "smooth" });
     }
   };
-
   return (
     <nav className="main-nav">
       <div className="nav-left">

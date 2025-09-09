@@ -7,7 +7,7 @@ const ProtectedRoute = () => {
   const { token } = useAuth();
 
   // If there's a token, show the page. Otherwise, redirect to login.
-  return token ? <Outlet /> : <Navigate to="/login" replace />;
+  return token ? <Outlet /> : <Navigate to="/home" replace />;
 };
 
 export default ProtectedRoute;
