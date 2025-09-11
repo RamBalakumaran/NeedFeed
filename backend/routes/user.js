@@ -1,101 +1,161 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../db');
-const jwt = require('jsonwebtoken');
 const multer = require('multer');
-const authenticateJWT = require('../middleware/auth');
-const path = require('path');
+const jwt = require('jsonwebtoken');
 
-// === Multer setup ===
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, 'uploads/'),
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    const uniqueName = `${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
-    cb(null, uniqueName);
-  }
-});
-const upload = multer({ storage });
+const upload = multer({ dest: "uploads/" });
 
-// === USER REGISTRATION ===
-router.post('/register', (req, res) => {
-  const {
-    name,
-    email,
-    password,
-    phone,
-    address,
-    city,
-    pincode,
-    role,
-    latitude,
-    longitude,
-    donorType,
-    foodType,
-    availabilityTime,
-    preferredArea,
-    vehicleType,
-    volunteerAvailability,
-    ngoName,
-    licenseNumber,
-    capacity,
-    ngoFoodType
-  } = req.body;
+// ========================
+// JWT AUTH MIDDLEWARE
+// ========================
+const authenticateJWT = (req, res, next) => {
+  const authHeader = req.headers.authorization;
 
-  if (!name || !email || !password || !role) {
-    return res.status(400).json({ message: "Name, email, password and role are required" });
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ message: "Authorization token missing" });
   }
 
-  db.query("SELECT email FROM users WHERE email = ?", [email], (err, results) => {
-    if (err) return res.status(500).json({ message: "DB error during email check", error: err });
-    if (results.length > 0) return res.status(400).json({ message: "Email already exists" });
+  const token = authHeader.split(" ")[1];
 
-    const insertUser = `
-      INSERT INTO users 
-      (name, email, password, phone, address, city, pincode, role, latitude, longitude) 
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  try {
+    const decoded = jwt.verify(token, 'your_jwt_secret'); // must match login secret
+    req.user = decoded; // attach decoded token to req.user
+    next();
+  } catch (err) {
+    console.error("JWT ERROR:", err);
+    return res.status(401).json({ message: "Invalid or expired token" });
+  }
+};
+
+// ========================
+// DONATE FOOD
+// ========================
+router.post('/donate', upload.single('photo'), (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({ message: "Authorization token missing" });
+    }
+
+    const token = authHeader.split(" ")[1];
+    const decoded = jwt.verify(token, 'your_jwt_secret');
+    const user_id = decoded.id;
+
+    const {
+      foodName,
+      quantity,
+      expiry,
+      location,
+      packagingDetails,
+      foodTemperature,
+      preparationDate,
+      ingredientsAllergens,
+      storageCondition,
+      instructions
+    } = req.body;
+
+    const photoPath = req.file ? req.file.filename : null;
+
+    if (!foodName || !quantity || !expiry) {
+      return res.status(400).json({ message: 'Food name, quantity, and expiry date are required' });
+    }
+
+    const query = `
+      INSERT INTO donations
+        (user_id, foodName, quantity, expiry, location, packagingDetails, foodTemperature, preparationDate, ingredientsAllergens, storageCondition, instructions, photo, status)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
-    db.query(insertUser, [name, email, password, phone, address, city, pincode, role, latitude, longitude], (err, result) => {
-      if (err) return res.status(500).json({ message: "Database error during registration", error: err });
+    const values = [
+      user_id,
+      foodName,
+      quantity,
+      expiry,
+      location || null,
+      packagingDetails || null,
+      foodTemperature || null,
+      preparationDate || null,
+      ingredientsAllergens || null,
+      storageCondition || null,
+      instructions || null,
+      photoPath,
+      'available'
+    ];
 
-      const userId = result.insertId;
-
-      if (role === 'donor') {
-        db.query(
-          `INSERT INTO donors (user_id, donorType, foodType, availabilityTime) VALUES (?, ?, ?, ?)`,
-          [userId, donorType, foodType, availabilityTime],
-          (err) => {
-            if (err) return res.status(500).json({ message: "Error inserting donor details", error: err });
-            return res.status(201).json({ message: "Donor registered successfully!" });
-          }
-        );
-      } else if (role === 'volunteer') {
-        db.query(
-          `INSERT INTO volunteers (user_id, preferredArea, vehicleType, availability) VALUES (?, ?, ?, ?)`,
-          [userId, preferredArea, vehicleType, volunteerAvailability],
-          (err) => {
-            if (err) return res.status(500).json({ message: "Error inserting volunteer details", error: err });
-            return res.status(201).json({ message: "Volunteer registered successfully!" });
-          }
-        );
-      } else if (role === 'ngo') {
-        db.query(
-          `INSERT INTO ngos (user_id, ngoName, licenseNumber, capacity, foodType) VALUES (?, ?, ?, ?, ?)`,
-          [userId, ngoName, licenseNumber, capacity, ngoFoodType],
-          (err) => {
-            if (err) return res.status(500).json({ message: "Error inserting NGO details", error: err });
-            return res.status(201).json({ message: "NGO registered successfully!" });
-          }
-        );
-      } else {
-        return res.status(201).json({ message: "User registered successfully!" });
+    db.query(query, values, (err, result) => {
+      if (err) {
+        console.error("DATABASE INSERTION ERROR:", err);
+        return res.status(500).json({ message: 'Failed to create donation due to a database error.' });
       }
+      res.status(201).json({ message: 'Donation created successfully', id: result.insertId });
     });
+
+  } catch (err) {
+    console.error("TOKEN ERROR:", err);
+    return res.status(401).json({ message: "Invalid or expired token" });
+  }
+});
+
+// ========================
+// USER REGISTER
+// ========================
+router.post('/register', (req, res) => {
+  const {
+    name, email, password, phone, address, city, pincode, role,
+    preferredArea, vehicleType, availability,     // volunteer
+    donorType, foodType, availabilityTime,        // donor
+    ngoName, licenseNumber, capacity, ngoFoodType // ngo
+  } = req.body;
+
+  if (!name || !email || !password) {
+    return res.status(400).json({ message: "Name, email, and password are required" });
+  }
+
+  db.query("SELECT * FROM users WHERE email = ?", [email], (err, results) => {
+    if (err) return res.status(500).json({ message: "DB error" });
+    if (results.length > 0) return res.status(400).json({ message: "Email already registered" });
+
+    db.query(
+      "INSERT INTO users (name, email, password, phone, address, city, pincode, role) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+      [name, email, password, phone || null, address || null, city || null, pincode || null, role || "donor"],
+      (err, result) => {
+        if (err) return res.status(500).json({ message: "Error creating user" });
+
+        const userId = result.insertId;
+
+        // Insert role-specific details
+        let roleQuery = null;
+        let values = [];
+
+        if (role === "donor") {
+          roleQuery = "INSERT INTO donors (user_id, donorType, foodType, availabilityTime) VALUES (?, ?, ?, ?)";
+          values = [userId, donorType || null, foodType || null, availabilityTime || null];
+        } else if (role === "volunteer") {
+          roleQuery = "INSERT INTO volunteers (user_id, preferredArea, vehicleType, availability) VALUES (?, ?, ?, ?)";
+          values = [userId, preferredArea || null, vehicleType || null, availability || null];
+        } else if (role === "ngo") {
+          roleQuery = "INSERT INTO ngos (user_id, ngoName, licenseNumber, capacity, foodType) VALUES (?, ?, ?, ?, ?)";
+          values = [userId, ngoName || null, licenseNumber || null, capacity || null, ngoFoodType || null];
+        }
+
+        if (roleQuery) {
+          db.query(roleQuery, values, (err) => {
+            if (err) return res.status(500).json({ message: "Error inserting role-specific details" });
+            return res.status(201).json({ message: "User registered successfully", id: userId });
+          });
+        } else {
+          return res.status(201).json({ message: "User registered successfully", id: userId });
+        }
+      }
+    );
   });
 });
 
-// === USER LOGIN ===
+
+// ========================
+// USER LOGIN
+// ========================
 router.post('/login', (req, res) => {
   const { email, password } = req.body;
 
@@ -124,7 +184,9 @@ router.post('/login', (req, res) => {
   });
 });
 
-// === GET PROFILE ===
+// ========================
+// GET PROFILE
+// ========================
 router.get('/profile', authenticateJWT, (req, res) => {
   const userId = req.user.id;
 
@@ -155,27 +217,18 @@ router.get('/profile', authenticateJWT, (req, res) => {
   });
 });
 
-// === UPDATE PROFILE ===
+// ========================
+// UPDATE PROFILE
+// ========================
 router.put('/profile', authenticateJWT, upload.single("profileImage"), (req, res) => {
   const userId = req.user.id;
   const role = req.user.role;
 
   const {
-    name,
-    phone,
-    address,
-    city,
-    pincode,
-    preferredArea,
-    vehicleType,
-    availability,
-    donorType,
-    foodType,
-    availabilityTime,
-    ngoName,
-    licenseNumber,
-    capacity,
-    ngoFoodType
+    name, phone, address, city, pincode,
+    preferredArea, vehicleType, availability,
+    donorType, foodType, availabilityTime,
+    ngoName, licenseNumber, capacity, ngoFoodType
   } = req.body;
 
   db.query("SELECT * FROM users WHERE id = ?", [userId], (err, userRes) => {
@@ -238,15 +291,17 @@ router.put('/profile', authenticateJWT, upload.single("profileImage"), (req, res
   });
 });
 
-// === UPLOAD PROFILE PHOTO (optional) ===
+// ========================
+// UPLOAD PROFILE PHOTO
+// ========================
 router.post("/upload-profile-photo", authenticateJWT, upload.single("profilePhoto"), (req, res) => {
   const userId = req.user.id;
-  
+
   if (!req.file) {
     return res.status(400).json({ message: "No file uploaded" });
   }
 
- const photoPath = req.file.path.replace(/\\/g, "/"); 
+  const photoPath = req.file.path.replace(/\\/g, "/");
 
   db.query("UPDATE users SET profile_photo=? WHERE id=?", [photoPath, userId], (err) => {
     if (err) {

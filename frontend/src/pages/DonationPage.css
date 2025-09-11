@@ -1,90 +1,143 @@
+/* Container for donation page, center content */
 .donation-page-container {
+  min-height: 100vh;
+  width: 100%;
   display: flex;
   justify-content: center;
-  padding: 3rem 1rem;
-  background-color: #f9fafb;
-
+  align-items: center;
+  background-color: #f9f9f9; /* light neutral background */
+  font-family: 'Segoe UI', 'Roboto', sans-serif;
+  padding: 2rem 1rem;
+  box-sizing: border-box;
 }
 
+/* The frosted glass card */
 .donation-form-card {
-  background-color: white;
+  background-color: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(8px);
   padding: 2rem 3rem;
   border-radius: 15px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15);
   width: 100%;
-  max-width: 600px;
+  max-width: 500px;
+  text-align: left;
+  color: #2c5e1a; /* deep food-related green */
 }
 
+/* Heading styles */
 .donation-form-card h1 {
-  text-align: center;
   font-size: 2.5rem;
-  color: #2c5e1a;
-  /* Branding green */
+  font-weight: bold;
   margin-bottom: 0.5rem;
 }
 
 .donation-form-card p {
-  text-align: center;
-  color: #555;
-  margin-bottom: 2.5rem;
   font-size: 1.1rem;
+  color: #555;
+  margin-bottom: 2rem;
 }
 
+/* Form groups */
 .form-group {
   margin-bottom: 1.5rem;
 }
 
 .form-group label {
   display: block;
+  font-weight: 600;
   margin-bottom: 0.5rem;
-  font-weight: bold;
-  color: #333;
+  color: #2c5e1a;
+  font-size: 1rem;
 }
 
-.form-group input {
+/* Inputs, selects and textarea */
+.form-group input,
+.form-group select,
+.form-group textarea {
   width: 100%;
   padding: 12px 15px;
   border: 1px solid #ccc;
   border-radius: 8px;
   font-size: 1rem;
   box-sizing: border-box;
+  font-family: 'Segoe UI', 'Roboto', sans-serif;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-.form-group input:focus {
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
   outline: none;
-  border-color: #f39c12;
+  border-color: #f39c12; /* warm orange */
   box-shadow: 0 0 5px rgba(243, 156, 18, 0.5);
 }
 
+/* Button styles */
 .donate-button {
   width: 100%;
   padding: 12px;
   border: none;
   border-radius: 8px;
   background-color: #f39c12;
-  /* Action orange */
   color: white;
   font-size: 1.2rem;
   font-weight: bold;
   cursor: pointer;
-  margin-top: 1rem;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s ease, transform 0.1s ease;
+  margin-top: 0.5rem;
 }
 
 .donate-button:hover {
   background-color: #e67e22;
 }
 
+.donate-button:active {
+  transform: scale(0.98);
+}
+
+/* Success and error messages */
 .form-message {
-  text-align: center;
   margin-top: 1rem;
-  font-weight: bold;
+  font-weight: 600;
+  font-size: 1rem;
 }
 
 .form-message.success {
-  color: green;
+  color: #2c5e1a;
 }
 
 .form-message.error {
-  color: red;
+  color: #e74c3c; /* a red color for errors */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .donation-form-card {
+    padding: 1.5rem 1.5rem;
+    max-width: 100%;
+  }
+
+  .donation-form-card h1 {
+    font-size: 2rem;
+  }
+
+  .donation-form-card p {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 400px) {
+  .donation-form-card h1 {
+    font-size: 1.7rem;
+  }
+
+  .donation-form-card p,
+  .form-group label {
+    font-size: 0.9rem;
+  }
+
+  .donate-button {
+    font-size: 1rem;
+    padding: 10px;
+  }
 }

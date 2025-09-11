@@ -39,9 +39,21 @@ const AvailableFoodPage = () => {
           {foods.map(food => (
             <div key={food.id} className="food-card">
               <h3>{food.foodName}</h3>
+
+              {/* ✅ Show image if available */}
+              {food.photo && (
+                <img
+                  src={`http://localhost:3001/uploads/${food.photo}`}
+                  alt={food.foodName}
+                  className="food-image"
+                />
+              )}
+
               <p><strong>Quantity:</strong> {food.quantity}</p>
               <p><strong>Location:</strong> {food.location}</p>
               <p><strong>Best Before:</strong> {new Date(food.expiry).toLocaleString()}</p>
+              <p><strong>Donor:</strong> {food.donor_name} ({food.donor_email})</p>
+
               <button onClick={() => handlePlaceOrder(food.id)} className="claim-button">
                 Claim Food
               </button>
