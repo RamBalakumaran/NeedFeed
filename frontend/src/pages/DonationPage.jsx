@@ -215,6 +215,23 @@ const DonationPage = () => {
           </div>
 
           <div className="form-group">
+  <label htmlFor="foodType">Food Type</label>
+  <select
+    id="foodType"
+    name="foodType"
+    value={formData.foodType}
+    onChange={handleChange}
+    required
+  >
+    <option value="">Select type</option>
+    <option value="Vegetarian">Vegetarian</option>
+    <option value="Non-veg">Non-veg</option>
+    <option value="Packaged">Packaged</option>
+    <option value="Cooked">Cooked</option>
+  </select>
+</div>
+
+          <div className="form-group">
             <label htmlFor="storageCondition">Storage Condition</label>
             <input
               id="storageCondition"

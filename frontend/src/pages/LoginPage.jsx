@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/AuthContext'; // make sure setAuthToken and setUser are provided here
 import './LoginPage.css';
 
 const LoginPage = () => {
@@ -9,17 +9,29 @@ const LoginPage = () => {
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
 
-  const { setAuthToken } = useAuth();
+  const { setAuthToken, setUser } = useAuth(); //  get setUser
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
-    e.preventDefault();
+    e.preventDefault(); //  prevent default form submit
     try {
-      const response = await axios.post('http://localhost:3001/api/user/login', { email, password });
-      setAuthToken(response.data.token);
-      navigate('/available');
+      const response = await axios.post("http://localhost:3001/api/user/login", {
+        email,
+        password
+      });
+
+      const { token, user } = response.data;
+      localStorage.setItem("token", token);
+      setAuthToken(token);     // save token to context
+      setUser(user);           //  save user to context
+
+    
+        navigate("/available");
+      
+
     } catch (error) {
-      setMessage(error.response?.data?.message || 'Login failed');
+      console.error("Login failed:", error);
+      setMessage("Invalid email or password");
     }
   };
 

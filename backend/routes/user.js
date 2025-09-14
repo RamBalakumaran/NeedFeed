@@ -312,4 +312,47 @@ router.post("/upload-profile-photo", authenticateJWT, upload.single("profilePhot
   });
 });
 
+router.get('/admin/users', authenticateJWT, (req, res) => {
+  if (req.user.role !== 'admin') {
+    return res.status(403).json({ message: 'Access denied: Admins only' });
+  }
+
+  // Extract filters and sort params from query
+  const { role, city, sort, order } = req.query;
+
+  // Base query
+  let query = 'SELECT id, name, email, phone, address, city, pincode, role FROM users';
+  let conditions = [];
+  let params = [];
+
+  // Add filters if present
+  if (role && role !== '') {
+    conditions.push('role = ?');
+    params.push(role);
+  }
+  if (city && city !== '') {
+    conditions.push('city LIKE ?');
+    params.push(`%${city}%`); // Partial match for city
+  }
+
+  if (conditions.length > 0) {
+    query += ' WHERE ' + conditions.join(' AND ');
+  }
+
+  // Allowed columns to sort by (prevent SQL injection)
+  const allowedSortColumns = ['name', 'email', 'role', 'city'];
+  const sortColumn = allowedSortColumns.includes(sort) ? sort : 'name'; // default sort by name
+  const sortOrder = order === 'desc' ? 'DESC' : 'ASC';
+
+  query += ` ORDER BY ${sortColumn} ${sortOrder}`;
+
+  db.query(query, params, (err, results) => {
+    if (err) {
+      console.error('Error fetching users:', err);
+      return res.status(500).json({ message: 'Error fetching users' });
+    }
+    res.json(results);
+  });
+});
+
 module.exports = router;

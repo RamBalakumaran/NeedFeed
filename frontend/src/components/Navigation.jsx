@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 const Navigation = () => {
-  const { token, setAuthToken } = useAuth();
+  const { token, user } = useAuth();
   const navigate = useNavigate();
 
   const handleScroll = (e, targetId) => {
@@ -18,15 +18,10 @@ const Navigation = () => {
     }
   };
 
-  const handleLogout = () => {
-    setAuthToken(null); // clears token + localStorage
-    navigate("/home");  // go back to home
-  };
-
   return (
     <nav className="main-nav">
       <div className="nav-left">
-        <Link to={token ? "/available" : "/home"} className="nav-brand">
+        <Link to={token ? "/home" : "/home"} className="nav-brand">
           NeedFeed
         </Link>
       </div>
@@ -34,11 +29,37 @@ const Navigation = () => {
       <div className="nav-right">
         {token ? (
           <>
-            <Link to="/donate" className="nav-link">Donate Food</Link>
-            <Link to="/available" className="nav-link">Available Food</Link>
+            {user?.role === 'admin' && (
+              <Link to="/admin" className="nav-link">Admin Panel</Link>
+            )}
+            {/* Donor Links */}
+            {user?.role === "donor" && (
+              <>
+                <Link to="/donate" className="nav-link">Donate Food</Link>
+                <Link to="/mydonations" className="nav-link">My Donations</Link>
+                <Link to="/available" className="nav-link">Available Food</Link>
+              </>
+            )}
+
+            {/* Needy / NGO Links */}
+            {(user?.role === "needy" || user?.role === "ngo") && (
+              <>
+                <Link to="/requestfood" className="nav-link">Request Food</Link>
+                <Link to="/myrequests" className="nav-link">My Requests</Link>
+                <Link to="/available" className="nav-link">Available Food</Link>
+              </>
+            )}
+
+            {/* Volunteer Links */}
+            {user?.role === "volunteer" && (
+              <>
+                <Link to="/pickuprequests" className="nav-link">Pickup Requests</Link>
+                <Link to="/mydeliveries" className="nav-link">My Deliveries</Link>
+              </>
+            )}
+
+            {/* Common Link */}
             <Link to="/profile" className="nav-link">Profile</Link>
-            
-            
           </>
         ) : (
           <>

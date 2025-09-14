@@ -1,0 +1,28 @@
+.my-requests-container {
+  padding: 20px;
+  background: #f9f9f9;
+  border-radius: 12px;
+}
+
+.my-requests-container h2 {
+  color: #2c3e50;
+  margin-bottom: 15px;
+}
+
+.my-requests-container ul {
+  list-style: none;
+  padding: 0;
+}
+
+.request-card {
+  background: #fff;
+  border: 1px solid #ddd;
+  padding: 12px;
+  margin: 8px 0;
+  border-radius: 8px;
+  transition: 0.3s ease;
+}
+
+.request-card:hover {
+  background: #eef7ff;
+}
