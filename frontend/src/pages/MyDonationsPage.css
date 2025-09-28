@@ -1,53 +1,83 @@
+/* Container */
 .my-donations-container {
-  padding: 20px;
+  padding: 30px;
+  max-width: 1200px;
+  margin: 0 auto;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .my-donations-container h1 {
-  margin-bottom: 20px;
+  margin-bottom: 30px;
   color: #2c3e50;
   text-align: center;
+  font-size: 2rem;
 }
 
+/* Error message */
 .error-message {
   color: #e74c3c;
   text-align: center;
-  margin: 10px 0;
+  margin: 15px 0;
   font-weight: bold;
 }
 
+/* Grid for cards */
 .donations-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(3, 1fr); /* Three cards per row */
+  gap: 25px;
 }
 
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .donations-grid {
+    grid-template-columns: repeat(2, 1fr); /* Two cards per row on tablets */
+  }
+}
+
+@media (max-width: 768px) {
+  .donations-grid {
+    grid-template-columns: 1fr; /* One card per row on mobile */
+  }
+}
+
+/* Card styling */
 .donation-card-history {
   background: #fff;
   border: 1px solid #ddd;
   border-radius: 12px;
-  box-shadow: 0px 3px 6px rgba(0,0,0,0.1);
+  box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.1);
   overflow: hidden;
-  transition: transform 0.2s ease-in-out;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column;
 }
 
 .donation-card-history:hover {
-  transform: translateY(-5px);
+  transform: translateY(-8px);
+  box-shadow: 0px 12px 25px rgba(0, 0, 0, 0.15);
 }
 
+/* Image */
 .donation-history-image {
   width: 100%;
-  height: 180px;
+  height: 200px;
   object-fit: cover;
   border-bottom: 1px solid #eee;
 }
 
+/* Content inside card */
 .donation-history-content {
-  padding: 15px;
+  padding: 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .donation-history-content h3 {
-  margin: 0 0 10px;
-  font-size: 1.2rem;
+  margin: 0 0 12px;
+  font-size: 1.3rem;
   color: #34495e;
 }
 
@@ -55,14 +85,16 @@
   margin: 6px 0;
   color: #555;
   font-size: 0.95rem;
+  line-height: 1.4;
 }
 
+/* Status badge */
 .donation-status {
-  margin-top: 10px;
+  margin-top: 15px;
   font-size: 0.9rem;
 }
 
-/* ✅ Status-based coloring */
+/* Status-based coloring */
 .status-pending .donation-status span {
   color: #f39c12;
   font-weight: bold;
@@ -81,4 +113,21 @@
 .status-rejected .donation-status span {
   color: #e74c3c;
   font-weight: bold;
+}
+
+/* Optional: Button inside card */
+.donation-card-history button {
+  margin-top: 10px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  background-color: #2980b9;
+  color: #fff;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.3s ease;
+}
+
+.donation-card-history button:hover {
+  background-color: #1c5980;
 }

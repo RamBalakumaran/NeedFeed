@@ -25,6 +25,7 @@ const authenticateJWT = (req, res, next) => {
 };
 
 // 1. Post a new food donation
+
 router.post("/donate", authenticateJWT, upload.single("photo"), (req, res) => {
   const user_id = req.user.id;
 
@@ -33,6 +34,8 @@ router.post("/donate", authenticateJWT, upload.single("photo"), (req, res) => {
     quantity,
     expiry,
     location,
+    latitude,     
+    longitude,    
     packagingDetails,
     foodTemperature,
     preparationDate,
@@ -52,10 +55,10 @@ router.post("/donate", authenticateJWT, upload.single("photo"), (req, res) => {
 
   const query = `
     INSERT INTO donations (
-      user_id, foodName, quantity, expiry, location, packagingDetails, 
-      foodTemperature, preparationDate, ingredientsAllergens, 
+      user_id, foodName, quantity, expiry, location, latitude, longitude, 
+      packagingDetails, foodTemperature, preparationDate, ingredientsAllergens, 
       storageCondition, instructions, foodType, photo, status
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
 
   const values = [
@@ -64,6 +67,8 @@ router.post("/donate", authenticateJWT, upload.single("photo"), (req, res) => {
     quantity,
     expiry,
     location || null,
+    latitude || null,
+    longitude || null,
     packagingDetails || null,
     foodTemperature || null,
     preparationDate || null,
@@ -89,17 +94,31 @@ router.post("/donate", authenticateJWT, upload.single("photo"), (req, res) => {
   });
 });
 
+
 // 2. Get available food donations (browse)
 router.get("/available", (req, res) => {
-  const { location, foodType, expiryTime, storageCondition, quantity } = req.query;
+  const { location, foodType, storageCondition, quantity, expiryTime, donor, foodName, userLat, userLng, radiusKm } = req.query;
 
   let query = `
     SELECT d.*, u.name AS donor_name, u.email AS donor_email, u.city AS donor_city
+  `;
+  const values = [];
+
+  if (userLat && userLng) {
+    query += `,
+      (6371 * acos(
+        cos(radians(?)) * cos(radians(d.latitude)) * cos(radians(d.longitude) - radians(?))
+        + sin(radians(?)) * sin(radians(d.latitude))
+      )) AS distance_km
+    `;
+    values.push(parseFloat(userLat), parseFloat(userLng), parseFloat(userLat));
+  }
+
+  query += `
     FROM donations d
     JOIN users u ON d.user_id = u.id
     WHERE d.status = 'available'
   `;
-  const values = [];
 
   if (location) {
     query += " AND u.city = ?";
@@ -113,13 +132,29 @@ router.get("/available", (req, res) => {
     query += " AND d.storageCondition = ?";
     values.push(storageCondition);
   }
+  if (quantity) {
+    query += " AND d.quantity >= ?";
+    values.push(quantity);
+  }
   if (expiryTime && !isNaN(parseInt(expiryTime, 10))) {
     query += " AND d.expiry <= DATE_ADD(NOW(), INTERVAL ? HOUR)";
     values.push(parseInt(expiryTime, 10));
   }
-  if (quantity && !isNaN(parseInt(quantity, 10))) {
-    query += " AND d.quantity >= ?";
-    values.push(parseInt(quantity, 10));
+  if (donor) {
+    query += " AND u.name LIKE ?";
+    values.push(`%${donor}%`);
+  }
+  if (foodName) {
+    query += " AND d.foodName LIKE ?";
+    values.push(`%${foodName}%`);
+  }
+
+  if (userLat && userLng && radiusKm) {
+    query += " HAVING distance_km <= ?";
+    values.push(parseFloat(radiusKm));
+    query += " ORDER BY distance_km ASC";
+  } else {
+    query += " ORDER BY d.created_at DESC";
   }
 
   db.query(query, values, (err, results) => {

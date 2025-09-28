@@ -48,7 +48,9 @@ const MyDonationsPage = () => {
               <div className="donation-history-content">
                 <h3>{donation.foodName}</h3>
                 <p><strong>Quantity:</strong> {donation.quantity}</p>
-                <p><strong>Date Posted:</strong> {new Date(donation.createdAt).toLocaleString()}</p>
+                <p><strong>Date Posted:</strong> {new Date(donation.preparationDate).toLocaleString()}</p>
+                <p><strong>Best Before :</strong> {new Date(donation.expiry).toLocaleString()}</p>
+                <p><strong>Location :</strong> {donation.location}</p>
                 <div className="donation-status">
                   <strong>Status:</strong> <span>{donation.status}</span>
                 </div>

@@ -2,6 +2,8 @@
   "dependencies": {
     "@fortawesome/free-solid-svg-icons": "^7.0.1",
     "@fortawesome/react-fontawesome": "^3.0.2",
-    "jwt-decode": "^4.0.0"
+    "jwt-decode": "^4.0.0",
+    "leaflet": "^1.9.4",
+    "react-leaflet": "^5.0.0"
   }
 }
