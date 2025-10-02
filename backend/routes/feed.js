@@ -24,8 +24,7 @@ const authenticateJWT = (req, res, next) => {
   }
 };
 
-// 1. Post a new food donation
-
+//1. POST /donate 
 router.post("/donate", authenticateJWT, upload.single("photo"), (req, res) => {
   const user_id = req.user.id;
 
@@ -34,8 +33,8 @@ router.post("/donate", authenticateJWT, upload.single("photo"), (req, res) => {
     quantity,
     expiry,
     location,
-    latitude,     
-    longitude,    
+    latitude,
+    longitude,
     packagingDetails,
     foodTemperature,
     preparationDate,
@@ -43,6 +42,7 @@ router.post("/donate", authenticateJWT, upload.single("photo"), (req, res) => {
     storageCondition,
     instructions,
     foodType,
+    needVolunteer,
   } = req.body;
 
   const photoPath = req.file ? req.file.filename : null;
@@ -55,10 +55,10 @@ router.post("/donate", authenticateJWT, upload.single("photo"), (req, res) => {
 
   const query = `
     INSERT INTO donations (
-      user_id, foodName, quantity, expiry, location, latitude, longitude, 
-      packagingDetails, foodTemperature, preparationDate, ingredientsAllergens, 
-      storageCondition, instructions, foodType, photo, status
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      user_id, foodName, quantity, expiry, location, latitude, longitude,
+      packagingDetails, foodTemperature, preparationDate, ingredientsAllergens,
+      storageCondition, instructions, foodType, photo, status, needVolunteer
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
 
   const values = [
@@ -78,14 +78,13 @@ router.post("/donate", authenticateJWT, upload.single("photo"), (req, res) => {
     foodType || null,
     photoPath,
     "available",
+    needVolunteer ? 1 : 0,
   ];
 
   db.query(query, values, (err, result) => {
     if (err) {
       console.error("DB INSERT ERROR:", err);
-      return res
-        .status(500)
-        .json({ message: "Failed to create donation due to DB error." });
+      return res.status(500).json({ message: "Failed to create donation due to DB error." });
     }
     res.status(201).json({
       message: "Donation created successfully",
@@ -166,37 +165,50 @@ router.get("/available", (req, res) => {
   });
 });
 
+
 // 3. Place an order (needy requests donation)
-router.post("/order/:id", authenticateJWT, async (req, res) => {
-  const ngoId = req.user.id; // assuming `req.user` has the NGO's user ID
+router.post("/order/:id", authenticateJWT, (req, res) => {
+  const userId = req.user.id;
   const donationId = req.params.id;
 
-  try {
-    // 1. Insert request into `requests` table
-    const insertQuery = `
-      INSERT INTO requests (ngoId, donationId, status)
-      VALUES (?, ?, 'Pending')
-    `;
-    await db.execute(insertQuery, [ngoId, donationId]);
-
-    // 2. Update donation status to 'ordered'
-    const updateQuery = `
-      UPDATE donations 
-      SET status = 'ordered'
-      WHERE id = ? AND status = 'available'
-    `;
-    const [result] = await db.execute(updateQuery, [donationId]);
-
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ message: "Donation not available or already ordered." });
+  const checkNgoQuery = "SELECT id FROM ngos WHERE user_id = ?";
+  db.query(checkNgoQuery, [userId], (err, ngoResults) => {
+    if (err) {
+      console.error("DB CHECK NGO ERROR:", err);
+      return res.status(500).json({ message: "DB error checking NGO" });
+    }
+    if (ngoResults.length === 0) {
+      return res.status(403).json({ message: "NGO not registered." });
     }
 
-    res.json({ message: "Request successfully placed!" });
-  } catch (err) {
-    console.error("DB ORDER ERROR:", err);
-    res.status(500).json({ message: "Database error while placing order." });
-  }
+    const ngoId = ngoResults[0].id;
+
+    const insertQuery = "INSERT INTO requests (ngoId, donationId, status) VALUES (?, ?, 'Pending')";
+    db.query(insertQuery, [ngoId, donationId], (err, insertResult) => {
+      if (err) {
+        console.error("DB INSERT REQUEST ERROR:", err);
+        return res.status(500).json({ message: "Database error while creating request" });
+      }
+
+      const updateQuery = "UPDATE donations SET status = 'ordered' WHERE id = ? AND status = 'available'";
+      db.query(updateQuery, [donationId], (err2, updateResult) => {
+        if (err2) {
+          console.error("DB UPDATE DONATION ERROR:", err2);
+          return res.status(500).json({ message: "Database error while updating donation status" });
+        }
+        if (updateResult.affectedRows === 0) {
+          return res.status(404).json({ message: "Donation not available or already ordered." });
+        }
+
+        res.json({
+          message: "Request successfully placed!",
+          requestId: insertResult.insertId,
+        });
+      });
+    });
+  });
 });
+
 
 // 4. Update delivery status (donor updates)
 router.put("/status/:id", authenticateJWT, (req, res) => {
@@ -250,21 +262,29 @@ router.get("/mydonations", authenticateJWT, (req, res) => {
 
 // 6. Get Pickup Requests (for volunteers)
 router.get("/pickup-requests", authenticateJWT, (req, res) => {
-  db.query(
-    `
-    SELECT d.*, u.name AS donor_name 
-    FROM donations d 
-    JOIN users u ON d.user_id = u.id 
-    WHERE d.status = 'requested'
-  `,
-    (err, results) => {
-      if (err) {
-        console.error("DB PICKUP REQUESTS ERROR:", err);
-        return res.status(500).json({ message: "Error fetching pickup requests" });
-      }
-      res.json(results);
-    }
-  );
+  const volunteerId = req.user.id;
+
+  const query = `
+    SELECT 
+      r.id AS requestId,
+      d.foodName,
+      d.quantity,
+      d.expiry,
+      d.location,
+      u.name AS donorName,
+      u.address AS donorAddress
+    FROM requests r
+    JOIN donations d ON r.donationId = d.id
+    JOIN users u ON d.user_id = u.id
+    LEFT JOIN deliveries del ON r.id = del.requestId
+    WHERE d.needVolunteer = 1 AND del.id IS NULL AND r.status = 'Approved'
+    ORDER BY r.createdAt DESC
+  `;
+
+  db.query(query, (err, results) => {
+    if (err) return res.status(500).json({ message: "Error fetching pickup requests" });
+    res.json({ requests: results });
+  });
 });
 
 // 7. Get My Deliveries (for volunteers)
@@ -272,38 +292,328 @@ router.get("/mydeliveries", authenticateJWT, (req, res) => {
   const volunteerId = req.user.id;
 
   const query = `
-    SELECT * FROM donations 
-    WHERE volunteer_id = ? 
-    ORDER BY updated_at DESC
+    SELECT 
+      del.id AS deliveryId,
+      del.status AS deliveryStatus,
+      r.id AS requestId,
+      d.foodName,
+      d.quantity,
+      d.expiry,
+      d.location,
+      donor.name AS donorName,
+      donor.email AS donorEmail,
+      ngo_user.name AS ngoName,
+      ngo_user.email AS ngoEmail
+    FROM deliveries del
+    JOIN requests r ON del.requestId = r.id
+    JOIN donations d ON r.donationId = d.id
+    JOIN users donor ON d.user_id = donor.id
+    JOIN ngos n ON r.ngoId = n.id
+    JOIN users ngo_user ON n.user_id = ngo_user.id
+    WHERE del.volunteerId = ?
+    ORDER BY del.updated_at DESC
   `;
 
   db.query(query, [volunteerId], (err, results) => {
+    if (err) return res.status(500).json({ message: "Error fetching your deliveries" });
+    res.json({ deliveries: results });
+  });
+});
+
+// 8. Get My Requests (for NGOs)
+router.get("/my-requests", authenticateJWT, (req, res) => {
+  const userId = req.user.id; // User ID from JWT token
+
+  // Step 1: Get NGO ID using user_id
+  const getNgoIdQuery = `SELECT id FROM ngos WHERE user_id = ?`;
+  db.query(getNgoIdQuery, [userId], (err, ngoResults) => {
     if (err) {
-      console.error("DB MYDELIVERIES ERROR:", err);
-      return res.status(500).json({ message: "Error fetching your deliveries" });
+      console.error("DB ERROR getting NGO ID:", err);
+      return res.status(500).json({ message: "Failed to fetch NGO" });
+    }
+
+    if (ngoResults.length === 0) {
+      return res.status(403).json({ message: "User is not registered as NGO" });
+    }
+
+    const ngoId = ngoResults[0].id;
+
+    // Step 2: Fetch requests using ngoId
+    const query = `
+      SELECT 
+        r.id AS requestId,
+        r.status AS requestStatus,
+        r.createdAt,
+        d.foodName,
+        d.photo,
+        d.quantity,
+        d.location,
+        d.expiry,
+        d.status AS donationStatus,
+        d.user_id AS donorId,
+        u.name AS donorName,
+        u.email AS donorEmail
+      FROM requests r
+      JOIN donations d ON r.donationId = d.id
+      JOIN users u ON d.user_id = u.id
+      WHERE r.ngoId = ?
+      ORDER BY r.createdAt DESC
+    `;
+
+    db.query(query, [ngoId], (err2, results) => {
+      if (err2) {
+        console.error("DB MY-REQUESTS ERROR:", err2);
+        return res.status(500).json({ message: "Error fetching your requests" });
+      }
+
+      res.json(results);
+    });
+  });
+});
+
+// 9. Get requests for donor's donations
+router.get("/donor/requests", authenticateJWT, (req, res) => {
+  const donorId = req.user.id;
+
+  const query = `
+    SELECT r.id AS requestId, r.status, r.createdAt,
+           d.id AS donationId, d.foodName, d.photo, d.quantity, d.location, d.expiry,
+           u.name AS ngo_name, u.email AS ngo_email
+    FROM requests r
+    JOIN donations d ON r.donationId = d.id
+    JOIN users u ON r.ngoId = u.id
+    WHERE d.user_id = ?
+    ORDER BY r.createdAt DESC
+  `;
+
+  db.query(query, [donorId], (err, results) => {
+    if (err) {
+      console.error("DB DONOR REQUESTS ERROR:", err);
+      return res.status(500).json({ message: "Error fetching donor requests" });
     }
     res.json(results);
   });
 });
 
-// 8. Get My Requests (for NGOs) - fixed to use callback style
-router.get("/my-requests", authenticateJWT, (req, res) => {
-  const ngoId = req.user.id;
+// 10. Approve / Reject request
+router.put("/donor/request/:id", authenticateJWT, (req, res) => {
+  const donorId = req.user.id;
+  const requestId = req.params.id;
+  const { status } = req.body; // Approved or Rejected
+
+  if (!["Approved", "Rejected"].includes(status)) {
+    return res.status(400).json({ message: "Invalid status" });
+  }
+
+  // Ensure donor owns this donation
+  const query = `
+    UPDATE requests r
+    JOIN donations d ON r.donationId = d.id
+    SET r.status = ?
+    WHERE r.id = ? AND d.user_id = ?
+  `;
+
+  db.query(query, [status, requestId, donorId], (err, result) => {
+    if (err) {
+      console.error("DB UPDATE REQUEST ERROR:", err);
+      return res.status(500).json({ message: "Database error while updating request." });
+    }
+    if (result.affectedRows === 0) {
+      return res.status(403).json({ message: "Not authorized or request not found" });
+    }
+    res.json({ message: `Request ${status.toLowerCase()} successfully!` });
+  });
+});
+
+// 11. Get request details by request ID
+router.get("/request-details/:id", authenticateJWT, (req, res) => {
+  const requestId = req.params.id;
 
   const query = `
-    SELECT r.*, d.foodName, d.photo, d.location, d.expiry, d.status AS donationStatus
+    SELECT 
+      r.id AS requestId,
+      r.status AS requestStatus,
+      d.foodName,
+      d.quantity,
+      d.expiry,
+      d.needVolunteer,
+      donor.name AS donorName,
+      donor.email AS donorEmail,
+      ngo_user.name AS ngoName,
+      ngo_user.email AS ngoEmail
     FROM requests r
     JOIN donations d ON r.donationId = d.id
-    WHERE r.ngoId = ?
+    JOIN users donor ON d.user_id = donor.id
+    JOIN ngos n ON r.ngoId = n.id
+    JOIN users ngo_user ON n.user_id = ngo_user.id
+    WHERE r.id = ?
+  `;
+
+  db.query(query, [requestId], (err, results) => {
+    if (err) return res.status(500).json({ message: "Database error." });
+    if (results.length === 0) return res.status(404).json({ message: "Request not found." });
+
+    const row = results[0];
+
+    res.json({
+      requestId: row.requestId,
+      requestStatus: row.requestStatus,
+      needVolunteer: !!row.needVolunteer,
+      donor: { name: row.donorName, email: row.donorEmail },
+      ngo: { name: row.ngoName, email: row.ngoEmail },
+      food: { foodName: row.foodName, quantity: row.quantity, expiry: row.expiry }
+    });
+  });
+});
+
+
+//12.
+router.get("/request/:id/volunteers", authenticateJWT, (req, res) => {
+  const requestId = req.params.id;
+
+  const donationQuery = `
+    SELECT d.latitude, d.longitude FROM requests r
+    JOIN donations d ON r.donationId = d.id
+    WHERE r.id = ?
+  `;
+  db.query(donationQuery, [requestId], (err, donationResults) => {
+    if (err || donationResults.length === 0) {
+      return res.status(500).json({ message: "Could not find donation location" });
+    }
+    const { latitude, longitude } = donationResults[0];
+
+    const volunteersQuery = `
+      SELECT id, name, email,
+      (6371 * acos(
+        cos(radians(?)) * cos(radians(latitude)) * cos(radians(longitude) - radians(?))
+        + sin(radians(?)) * sin(radians(latitude))
+      )) AS distance_km
+      FROM users
+      WHERE role = 'volunteer' AND latitude IS NOT NULL AND longitude IS NOT NULL
+      HAVING distance_km <= 20
+      ORDER BY distance_km ASC
+      LIMIT 10
+    `;
+
+    db.query(volunteersQuery, [latitude, longitude, latitude], (err2, volunteerResults) => {
+      if (err2) return res.status(500).json({ message: "Error fetching volunteers" });
+      res.json({ volunteers: volunteerResults });
+    });
+  });
+});
+
+
+router.post("/book-request/:id", authenticateJWT, (req, res) => {
+  const requestId = req.params.id;
+  const { volunteerId } = req.body; // optional
+
+  db.beginTransaction(err => {
+    if (err) return res.status(500).json({ message: "Transaction start failed." });
+
+    // Approve request if Pending
+    const updateRequestQuery = `
+      UPDATE requests
+      SET status = 'Approved'
+      WHERE id = ? AND status IN ('Pending','Approved')
+    `;
+
+    db.query(updateRequestQuery, [requestId], (err, result) => {
+      if (err) return db.rollback(() => res.status(500).json({ message: "DB error updating request." }));
+      if (result.affectedRows === 0) return db.rollback(() => res.status(404).json({ message: "Request not found." }));
+
+      // Insert into deliveries
+      const createDeliveryQuery = `
+        INSERT INTO deliveries (requestId, volunteerId, status)
+        VALUES (?, ?, ?)
+      `;
+      const deliveryStatus = volunteerId ? 'Assigned' : 'PendingPickup';
+
+      db.query(createDeliveryQuery, [requestId, volunteerId || null, deliveryStatus], (err1) => {
+        if (err1) return db.rollback(() => res.status(500).json({ message: "DB error creating delivery." }));
+
+        // Update donation status to 'ordered'
+        const updateDonationQuery = `
+          UPDATE donations d
+          JOIN requests r ON d.id = r.donationId
+          SET d.status = 'ordered', d.volunteer_id = ?
+          WHERE r.id = ?
+        `;
+        db.query(updateDonationQuery, [volunteerId || null, requestId], (err2) => {
+          if (err2) return db.rollback(() => res.status(500).json({ message: "DB error updating donation status." }));
+
+          db.commit(err3 => {
+            if (err3) return db.rollback(() => res.status(500).json({ message: "Commit failed." }));
+            return res.status(200).json({ message: "Food booked successfully!" });
+          });
+        });
+      });
+    });
+  });
+});
+
+
+// 14.GET ALL UNASSIGNED PICKUP REQUESTS
+router.get("/unassigned-requests", authenticateJWT, (req, res) => {
+  const query = `
+    SELECT
+      r.id AS requestId,
+      d.foodName,
+      d.quantity,
+      d.expiry,
+      u.name AS donorName,
+      u.address AS donorAddress
+    FROM requests r
+    JOIN donations d ON r.donationId = d.id
+    JOIN users u ON d.user_id = u.id
+    LEFT JOIN deliveries del ON r.id = del.requestId
+    WHERE d.needVolunteer = 1 AND del.id IS NULL AND r.status = 'Approved'
     ORDER BY r.createdAt DESC
   `;
 
-  db.query(query, [ngoId], (err, results) => {
+  db.query(query, (err, results) => {
     if (err) {
-      console.error("DB MY-REQUESTS ERROR:", err);
-      return res.status(500).json({ message: "Database error fetching your requests" });
+      console.error("DB UNASSIGNED-REQUESTS ERROR:", err);
+      return res.status(500).json({ message: "Failed to fetch unassigned requests." });
     }
-    res.json(results);
+    res.json({ requests: results });
+  });
+});
+
+
+// ===================== PUT /deliveries/:id/delivered =====================
+// Mark a delivery as Delivered
+router.put("/deliveries/:id/delivered", authenticateJWT, (req, res) => {
+  const deliveryId = req.params.id;
+
+  db.beginTransaction(err => {
+    if (err) return res.status(500).json({ message: "Transaction start failed." });
+
+    const updateDelivery = `
+      UPDATE deliveries 
+      SET status = 'Delivered', updated_at = NOW()
+      WHERE id = ?
+    `;
+
+    db.query(updateDelivery, [deliveryId], (err, result) => {
+      if (err) return db.rollback(() => res.status(500).json({ message: "DB error updating delivery." }));
+
+      const updateDonation = `
+        UPDATE donations d
+        JOIN requests r ON d.id = r.donationId
+        JOIN deliveries del ON del.requestId = r.id
+        SET d.status = 'delivered'
+        WHERE del.id = ?
+      `;
+
+      db.query(updateDonation, [deliveryId], (err2) => {
+        if (err2) return db.rollback(() => res.status(500).json({ message: "DB error updating donation." }));
+
+        db.commit(err3 => {
+          if (err3) return db.rollback(() => res.status(500).json({ message: "Commit failed." }));
+          res.json({ message: "Delivery confirmed and donation marked as delivered." });
+        });
+      });
+    });
   });
 });
 

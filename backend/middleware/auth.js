@@ -1,5 +1,6 @@
-// backend/middleware/auth.js
 const jwt = require('jsonwebtoken');
+
+const JWT_SECRET = 'your_jwt_secret';  // Use env var in production
 
 function authenticateJWT(req, res, next) {
   const authHeader = req.headers.authorization;
@@ -7,7 +8,7 @@ function authenticateJWT(req, res, next) {
   if (authHeader && authHeader.startsWith('Bearer ')) {
     const token = authHeader.split(' ')[1];
 
-    jwt.verify(token, 'your_jwt_secret', (err, user) => {
+    jwt.verify(token, JWT_SECRET, (err, user) => {
       if (err) {
         return res.sendStatus(403); // Invalid token
       }
@@ -19,4 +20,18 @@ function authenticateJWT(req, res, next) {
   }
 }
 
-module.exports = authenticateJWT;
+// Example verifyVolunteer middleware - ensure user role is volunteer
+function verifyVolunteer(req, res, next) {
+  authenticateJWT(req, res, () => {
+    if (req.user && req.user.role === 'volunteer') {
+      next();
+    } else {
+      res.status(403).json({ message: 'Forbidden: Not a volunteer' });
+    }
+  });
+}
+
+module.exports = {
+  authenticateJWT,
+  verifyVolunteer
+};

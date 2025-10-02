@@ -38,6 +38,7 @@ const Navigation = () => {
                 <Link to="/donate" className="nav-link">Donate Food</Link>
                 <Link to="/mydonations" className="nav-link">My Donations</Link>
                 <Link to="/available" className="nav-link">Available Food</Link>
+                <Link to="/requests" className="nav-link">Request</Link>
               </>
             )}
 

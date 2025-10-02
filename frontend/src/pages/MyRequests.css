@@ -1,28 +1,158 @@
+/* Container */
 .my-requests-container {
-  padding: 20px;
-  background: #f9f9f9;
-  border-radius: 12px;
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 0 20px 40px;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background: #fff;
 }
 
-.my-requests-container h2 {
-  color: #2c3e50;
-  margin-bottom: 15px;
+h2 {
+  color: #2e7d32;
+  text-align: center;
+  margin-bottom: 20px;
+  font-weight: 700;
+  font-size: 32px;
+  letter-spacing: 0.03em;
 }
 
-.my-requests-container ul {
+.my-requests-container > p {
+  text-align: center;
+  color: #666;
+  margin-bottom: 30px;
+  font-size: 16px;
+}
+
+/* Error Message */
+.error-message {
+  color: #d32f2f;
+  background-color: #ffecec;
+  padding: 12px;
+  border-radius: 8px;
+  text-align: center;
+  margin-bottom: 24px;
+  font-weight: 600;
+}
+
+/* Request List */
+.request-list {
   list-style: none;
   padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 24px;
 }
 
+/* Request Card */
 .request-card {
-  background: #fff;
-  border: 1px solid #ddd;
-  padding: 12px;
-  margin: 8px 0;
-  border-radius: 8px;
-  transition: 0.3s ease;
+  background-color: #ffffff;
+  border-radius: 14px;
+  padding: 16px 18px 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
 }
 
 .request-card:hover {
-  background: #eef7ff;
+  transform: translateY(-4px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+}
+
+.request-card h3 {
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: #1e3d1e;
+  font-size: 20px;
+  text-transform: capitalize;
+  width: 100%;
+}
+
+.request-card p {
+  margin: 6px 0;
+  font-size: 15px;
+  color: #444;
+  width: 100%;
+}
+
+.request-card p strong {
+  color: #222;
+  font-weight: 700;
+}
+
+.request-card img.request-photo {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 10px;
+  margin: 14px 0 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Status Pills */
+.status {
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  display: inline-block;
+  margin-top: 6px;
+  text-transform: capitalize;
+}
+
+.status.pending {
+  background-color: #ffe082;
+  color: #7a5700;
+}
+
+.status.approved {
+  background-color: #c8e6c9;
+  color: #256029;
+}
+
+.status.rejected {
+  background-color: #ffcdd2;
+  color: #c62828;
+}
+
+.status.ordered {
+  background-color: #bbdefb;
+  color: #0d47a1;
+}
+
+/* Claim/Status Buttons */
+.status-button {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 15.5px;
+  border: none;
+  margin-top: 18px;
+  user-select: none;
+  transition: background-color 0.3s ease, box-shadow 0.2s ease;
+  letter-spacing: 0.03em;
+  text-align: center;
+}
+
+.status-button.approved {
+  background-color: #27ae60;
+  color: #fff;
+  cursor: pointer;
+}
+
+.status-button.approved:hover {
+  background-color: #219150;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.status-button.pending,
+.status-button.rejected,
+.status-button.ordered {
+  background-color: #ccc;
+  color: #666;
+  cursor: not-allowed;
+  box-shadow: none;
 }

@@ -27,18 +27,21 @@ const RequestFoodPage = () => {
 
   // ✅ Call correct backend POST endpoint for requesting food
   const handleRequestFood = async (id) => {
-    try {
-      await axios.post(`http://localhost:3001/api/feed/order/${id}`, {}, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setMessage('Request sent successfully! A volunteer will be assigned shortly.');
-      setError('');
-      fetchAvailableFoods(); // Refresh list to remove requested item
-    } catch (err) {
-      setError(err.response?.data?.message || 'Failed to send request.');
-      setMessage('');
-    }
-  };
+  try {
+    await axios.post(
+      `http://localhost:3001/api/feed/order/${id}`,
+      {},
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    setMessage("Request sent successfully! A volunteer will be assigned shortly.");
+    setError("");
+    fetchAvailableFoods(); // Refresh list to remove requested item
+  } catch (err) {
+    console.error("Request error:", err.response?.data || err.message);
+    setError(err.response?.data?.message || "Failed to send request.");
+    setMessage("");
+  }
+};
 
   return (
     <div className="available-food-container">

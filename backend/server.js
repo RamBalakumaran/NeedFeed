@@ -1,8 +1,9 @@
-// backend/server.js
+// ✅ Correct server.js
 const express = require('express');
 const cors = require('cors');
 const userRoutes = require('./routes/user');
-const feedRoutes = require('./routes/feed'); // <-- Ensure this file exists
+const feedRoutes = require('./routes/feed');
+const volunteerRoutes = require('./routes/volunteer'); // Make sure the file name is correct
 
 const app = express();
 const port = 3001;
@@ -14,7 +15,10 @@ app.use(express.json());
 // Routes
 app.use('/api/user', userRoutes);
 app.use('/api/feed', feedRoutes);
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use('/api/volunteer', volunteerRoutes); // ✅ Correct path
+
+// Serve uploaded images
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);

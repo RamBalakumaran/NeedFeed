@@ -17,6 +17,8 @@ import ProfilePage from "./pages/ProfilePage";
 import Footer from "./pages/Footer";
 import Navigation from "./components/Navigation";
 import AdminPanel from './pages/AdminPanel';
+import DonorRequestsPage from "./pages/DonorRequestsPage";
+import RequestDetails from "./pages/RequestDetails";
 
 // --- Role-based Protected Wrapper ---
 const RoleRoute = ({ allowedRoles, children }) => {
@@ -74,6 +76,15 @@ function App() {
                     </RoleRoute>
                   }
                 />
+                <Route
+                  path="/requests"
+                  element={
+                    <RoleRoute allowedRoles={["donor"]}>
+                      <DonorRequestsPage />
+                    </RoleRoute>
+                  }
+                />
+
 
                 {/* Needy/NGO Only */}
                 <Route
@@ -89,6 +100,14 @@ function App() {
                   element={
                     <RoleRoute allowedRoles={["needy", "ngo"]}>
                       <MyRequests />
+                    </RoleRoute>
+                  }
+                />
+                <Route
+                  path="/request-details/:id"
+                  element={
+                    <RoleRoute allowedRoles={["needy", "ngo"]}>
+                      <RequestDetails />
                     </RoleRoute>
                   }
                 />

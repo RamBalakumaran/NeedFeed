@@ -1,0 +1,109 @@
+.donor-requests-page {
+  padding: 20px;
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 30px;
+  color: #333;
+}
+
+.error-text {
+  text-align: center;
+  color: red;
+  font-weight: bold;
+}
+
+.no-requests {
+  text-align: center;
+  font-size: 18px;
+  color: #666;
+  margin-top: 20px;
+}
+
+.food-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.food-card {
+  background-color: #f8f8f8;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 16px;
+  transition: transform 0.2s ease;
+}
+
+.food-card:hover {
+  transform: translateY(-5px);
+}
+
+.food-image {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 6px;
+  margin-bottom: 12px;
+}
+
+.food-card h3 {
+  margin-top: 0;
+  color: #2c3e50;
+}
+
+.food-card p {
+  margin: 4px 0;
+  color: #555;
+}
+
+.button-group {
+  margin-top: 12px;
+}
+
+button {
+  padding: 8px 14px;
+  margin-right: 8px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.3s ease, opacity 0.3s;
+  color: white;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+.approve-btn {
+  background-color: #f39c12; /* Orange */
+}
+
+.approve-btn:hover {
+  background-color: #d78f0b;
+}
+
+.reject-btn {
+  background-color: #e74c3c; /* Red */
+}
+
+.reject-btn:hover {
+  background-color: #c0392b;
+}
+
+@media (max-width: 600px) {
+  .food-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .button-group {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .button-group button {
+    margin-bottom: 10px;
+    width: 100%;
+  }
+}
