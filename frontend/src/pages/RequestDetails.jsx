@@ -16,7 +16,7 @@ export default function RequestDetails() {
   const [selectedVolunteerId, setSelectedVolunteerId] = useState(null);
   const [bookingStatus, setBookingStatus] = useState("");
 
-  // Fetch request details
+  // Fetch request + donation + donor details
   useEffect(() => {
     const fetchDetails = async () => {
       try {
@@ -27,82 +27,117 @@ export default function RequestDetails() {
         if (!res.ok) throw new Error("Failed to fetch request details.");
         const data = await res.json();
         setDetails(data);
-        setNeedVolunteer(data.needVolunteer);
+        setNeedVolunteer(data.needVolunteer === 1);
       } catch (err) {
+        console.error(err);
         setError(err.message);
       }
     };
     fetchDetails();
   }, [id, token]);
 
-  // Fetch volunteers if needed
+  // Update backend when user toggles “Need Volunteer”
   useEffect(() => {
-    if (!needVolunteer) {
+    const updateNeedVolunteer = async () => {
+      if (!details?.food?.id) return;
+      try {
+        await fetch(
+          `http://localhost:3001/api/feed/request/${details.food.id}/need-volunteer`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ needVolunteer }),
+          }
+        );
+      } catch (err) {
+        console.error("Failed to update needVolunteer:", err.message);
+      }
+    };
+    updateNeedVolunteer();
+  }, [needVolunteer, token, details]);
+
+  // Fetch nearby volunteers
+  useEffect(() => {
+    if (!needVolunteer || !details?.food?.id) {
       setVolunteers([]);
       setSelectedVolunteerId(null);
       return;
     }
+
     const fetchVolunteers = async () => {
       setLoadingVolunteers(true);
       try {
         const res = await fetch(
-          `http://localhost:3001/api/feed/request/${id}/volunteers`,
+          `http://localhost:3001/api/feed/request/${details.food.id}/volunteers`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
-        if (!res.ok) throw new Error("Failed to fetch volunteers.");
         const data = await res.json();
+        if (!res.ok) throw new Error(data.message || "Failed to fetch volunteers.");
         setVolunteers(data.volunteers || []);
       } catch (err) {
+        console.error("Error fetching volunteers:", err);
         setError(err.message);
       } finally {
         setLoadingVolunteers(false);
       }
     };
     fetchVolunteers();
-  }, [needVolunteer, id, token]);
+  }, [needVolunteer, token, details]);
 
-  // Handle booking food request
-  const handleBookFood = async () => {
-    if (details.requestStatus !== "Approved" && details.requestStatus !== "Pending") {
-      alert("You can only claim this request after donor approval.");
-      return;
-    }
+  // Handle booking (claim donation)
+ const handleBookFood = async () => {
+  if (!details) return;
 
-    if (needVolunteer && !selectedVolunteerId) {
-      alert("Please select a volunteer before booking.");
-      return;
-    }
+  if (details.requestStatus !== "Approved" && details.requestStatus !== "Pending") {
+    alert("You can only claim this request after donor approval.");
+    return;
+  }
 
-    setBookingStatus("Booking in progress...");
-    try {
-      const res = await fetch(`http://localhost:3001/api/feed/book-request/${id}`, {
+  if (needVolunteer && !selectedVolunteerId) {
+    alert("Please select a volunteer before booking.");
+    return;
+  }
+
+  setBookingStatus("Booking in progress...");
+
+  try {
+    const res = await fetch(
+      `http://localhost:3001/api/feed/book-request/${id}`,
+      {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          needVolunteer,
-          volunteerId: selectedVolunteerId || null,
+          volunteerId: needVolunteer ? selectedVolunteerId : null,
         }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Booking failed.");
+      }
+    );
 
-      setBookingStatus("Food booked successfully!");
+    const data = await res.json();
 
-      // Redirect to ThankYou page
-      setTimeout(() => {
-        navigate("/thankyou");
-      }, 1000);
-    } catch (err) {
-      setBookingStatus(`Booking failed: ${err.message}`);
+    if (res.status === 409) {
+      alert(data.message); // Delivery already exists
+      return;
     }
-  };
 
-  // Handle marking delivery as received
+    if (!res.ok) throw new Error(data.message || "Booking failed.");
+
+    alert("✅ Food booked successfully!");
+    navigate("/myrequests");
+  } catch (err) {
+    alert("Booking failed: " + err.message);
+  } finally {
+    setBookingStatus("");
+  }
+};
+  // Handle marking as received
   const handleMarkReceived = async () => {
-    if (!details.deliveryId) {
+    if (!details?.deliveryId) {
       alert("Delivery info not available.");
       return;
     }
@@ -121,7 +156,7 @@ export default function RequestDetails() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to mark as received.");
 
-      alert("Delivery marked as received!");
+      alert("✅ Delivery marked as received!");
       setDetails((prev) => ({
         ...prev,
         deliveryStatus: "Delivered",
@@ -133,7 +168,7 @@ export default function RequestDetails() {
   };
 
   if (error) return <p className="error">{error}</p>;
-  if (!details) return <p>Loading...</p>;
+  if (!details) return <p>Loading details...</p>;
 
   return (
     <div className="request-details-container">
@@ -141,27 +176,27 @@ export default function RequestDetails() {
 
       <section className="section">
         <h3>Food Details</h3>
-        <p><strong>Item:</strong> {details.food.foodName}</p>
-        <p><strong>Quantity:</strong> {details.food.quantity}</p>
-        <p><strong>Expiry:</strong> {new Date(details.food.expiry).toLocaleDateString()}</p>
+        <p><strong>Item:</strong> {details.food?.foodName}</p>
+        <p><strong>Quantity:</strong> {details.food?.quantity}</p>
+        <p><strong>Expiry:</strong> {new Date(details.food?.expiry).toLocaleString()}</p>
       </section>
 
       <section className="section">
         <h3>Donor Details</h3>
-        <p><strong>Name:</strong> {details.donor.name}</p>
-        <p><strong>Email:</strong> {details.donor.email}</p>
+        <p><strong>Name:</strong> {details.donor?.name}</p>
+        <p><strong>Email:</strong> {details.donor?.email}</p>
       </section>
 
       <section className="section">
-        <h3>Volunteer Needed?</h3>
-        <label>
+        <h3>Need Volunteer?</h3>
+        <label className="radio-label">
           <input
             type="radio"
             checked={needVolunteer}
             onChange={() => setNeedVolunteer(true)}
           /> Yes
         </label>
-        <label>
+        <label className="radio-label">
           <input
             type="radio"
             checked={!needVolunteer}
@@ -177,38 +212,37 @@ export default function RequestDetails() {
             ) : volunteers.length === 0 ? (
               <p>No volunteers found nearby.</p>
             ) : (
-              <ul>
+              <div className="volunteer-cards">
                 {volunteers.map((vol) => (
-                  <li
-                    key={vol.id}
-                    className={selectedVolunteerId === vol.id ? "selected" : ""}
-                    onClick={() => setSelectedVolunteerId(vol.id)}
+                  <div
+                    key={vol.volunteerId}
+                    className={`volunteer-card ${selectedVolunteerId === vol.volunteerId ? "selected" : ""}`}
+                    onClick={() => setSelectedVolunteerId(vol.volunteerId)}
                   >
-                    {vol.name} ({vol.email}) - {vol.distance_km.toFixed(2)} km
-                  </li>
+                    <p><strong>{vol.name}</strong></p>
+                    <p>{vol.email}</p>
+                    <p>{vol.distanceKm?.toFixed(2)} km away</p>
+                  </div>
                 ))}
-              </ul>
+              </div>
             )}
           </div>
         )}
       </section>
 
-      {/* Button logic */}
-      {details.deliveryStatus === "Delivered" ? (
-        <button className="book-button" disabled>Already Received</button>
-      ) : details.deliveryStatus === "Assigned" || details.deliveryStatus === "PendingPickup" ? (
-        <button className="book-button" onClick={handleMarkReceived}>Mark as Received</button>
-      ) : (
-        <button
-          className="book-button"
-          onClick={handleBookFood}
-          disabled={!!bookingStatus}
-        >
-          {bookingStatus ? bookingStatus : "Confirm Booking"}
+      <button
+        className="book-button"
+        onClick={handleBookFood}
+        disabled={!!bookingStatus}
+      >
+        {bookingStatus || "Confirm Booking"}
+      </button>
+
+      {(details.deliveryStatus === "Assigned" || details.deliveryStatus === "PendingPickup") && (
+        <button className="book-button" onClick={handleMarkReceived}>
+          Mark as Received
         </button>
       )}
-
-      {bookingStatus && <p className="booking-status">{bookingStatus}</p>}
     </div>
   );
 }

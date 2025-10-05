@@ -1,43 +1,106 @@
 .deliveries-container {
-  padding: 20px;
+  padding: 25px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f8f9fa;
 }
 
 .deliveries-container h2 {
   margin-bottom: 20px;
   color: #2c3e50;
+  border-left: 5px solid #3498db;
+  padding-left: 10px;
 }
 
 .deliveries-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
 }
 
 .delivery-card {
   background: #fff;
   border: 1px solid #ddd;
-  padding: 15px;
-  border-radius: 10px;
-  box-shadow: 0px 2px 5px rgba(0,0,0,0.1);
-  transition: transform 0.2s;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.12);
+  transition: transform 0.25s, box-shadow 0.25s;
 }
 
 .delivery-card:hover {
-  transform: translateY(-3px);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+}
+
+.address-block {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background-color: #f0f8ff;
+  padding: 12px;
+  border-radius: 10px;
+  margin: 12px 0;
+  font-size: 0.95rem;
+}
+
+.address-block div {
+  background-color: #eaf2f8;
+  padding: 8px;
+  border-radius: 8px;
+}
+
+.address-block strong {
+  display: block;
+  margin-bottom: 4px;
+  color: #34495e;
+}
+
+.status-badge {
+  font-weight: bold;
+  color: #d35400;
+  padding: 5px 12px;
+  border-radius: 15px;
+  background-color: #fdebd0;
+  font-size: 0.95rem;
+}
+
+.status-badge.delivered {
+  color: #27ae60;
+  background-color: #d5f5e3;
 }
 
 .deliver-btn {
-  margin-top: 10px;
-  padding: 8px 14px;
+  margin-top: 14px;
+  padding: 10px 18px;
   border: none;
-  border-radius: 6px;
-  background: #2980b9;
+  border-radius: 10px;
+  background: linear-gradient(90deg, #27ae60, #2ecc71);
   color: #fff;
   cursor: pointer;
   font-weight: bold;
-  transition: background 0.2s;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 5px 10px rgba(0,0,0,0.12);
 }
 
 .deliver-btn:hover {
-  background: #21618c;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.18);
+  background: linear-gradient(90deg, #1e8449, #27ae60);
+}
+
+.history-card {
+  background: #f7f7f7;
+  opacity: 0.9;
+}
+
+.loading {
+  color: #3498db;
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.error {
+  color: red;
+  font-weight: bold;
+  font-size: 1.05rem;
 }

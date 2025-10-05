@@ -90,7 +90,6 @@ h2 {
   margin: 14px 0 10px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
-
 /* Status Pills */
 .status {
   font-weight: 600;
@@ -155,4 +154,37 @@ h2 {
   color: #666;
   cursor: not-allowed;
   box-shadow: none;
+}
+/* new */
+.status.pending {
+  color: orange;
+  font-weight: bold;
+}
+
+.status.approved {
+  color: green;
+  font-weight: bold;
+}
+
+.status.rejected {
+  color: red;
+  font-weight: bold;
+}
+
+.status-button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.status-button.approved {
+  background-color: #4caf50;
+}
+
+.status-button.pending {
+  background-color: gray;
+  cursor: not-allowed;
 }

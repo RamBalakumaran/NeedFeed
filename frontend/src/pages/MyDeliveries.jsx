@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useAuth } from "../context/AuthContext";
+import "./MyDeliveries.css";
 
 export default function MyDeliveries() {
   const { token } = useAuth();
@@ -40,7 +41,7 @@ export default function MyDeliveries() {
         body: JSON.stringify({ status: newStatus }),
       });
       if (!res.ok) throw new Error(`Failed to mark as ${newStatus}`);
-      await fetchDeliveries(); // Refresh the list
+      await fetchDeliveries();
     } catch (e) {
       setError(`Failed to update delivery ${deliveryId}: ${e.message}`);
     } finally {
@@ -48,66 +49,80 @@ export default function MyDeliveries() {
     }
   };
 
-  if (loading) return <p>Loading your deliveries...</p>;
-  if (error) return <p style={{ color: "red" }}>{error}</p>;
+  if (loading) return <p className="loading">Loading your deliveries...</p>;
+  if (error) return <p className="error">{error}</p>;
 
   const activeDeliveries = deliveries.filter((d) => d.status !== "Delivered");
   const deliveryHistory = deliveries.filter((d) => d.status === "Delivered");
 
   return (
-    <div style={styles.container}>
+    <div className="deliveries-container">
       <h2>My Active Deliveries</h2>
       {activeDeliveries.length === 0 ? (
-        <p>You have no active deliveries assigned.</p>
+        <p>No active deliveries assigned.</p>
       ) : (
-        <ul style={styles.list}>
+        <div className="deliveries-grid">
           {activeDeliveries.map((d) => (
-            <li key={d.deliveryId} style={styles.listItem}>
+            <div key={d.deliveryId} className="delivery-card">
               <p><strong>Food:</strong> {d.foodName} ({d.quantity})</p>
-              <p><strong>Status:</strong> <span style={styles.status}>{d.status}</span></p>
-              <div style={styles.addressBlock}>
-                <p><strong>PICKUP FROM (Donor):</strong><br />{d.donorName}<br />{d.donorAddress}</p>
-                <p><strong>DELIVER TO (NGO):</strong><br />{d.ngoName}<br />{d.ngoAddress}</p>
+              <p>
+                <strong>Status:</strong>{" "}
+                <span className={`status-badge ${d.status === 'Delivered' ? 'delivered' : ''}`}>
+                  {d.status}
+                </span>
+              </p>
+              <div className="address-block">
+                <div>
+                  <strong>PICKUP FROM (Donor)</strong>
+                  <p><strong>Name:</strong> {d.donorName}</p>
+                  <p><strong>Address:</strong> {d.donorAddress}</p>
+                </div>
+                <div>
+                  <strong>DELIVER TO (NGO)</strong>
+                  <p><strong>Name:</strong> {d.ngoName}</p>
+                  <p><strong>Address:</strong> {d.ngoAddress}</p>
+                </div>
               </div>
               {d.status === 'Assigned' && (
-                <button style={styles.button} onClick={() => handleUpdateStatus(d.deliveryId, 'Picked Up')} disabled={updatingId === d.deliveryId}>
+                <button
+                  className="deliver-btn"
+                  onClick={() => handleUpdateStatus(d.deliveryId, 'PickedUp')}
+                  disabled={updatingId === d.deliveryId}
+                >
                   {updatingId === d.deliveryId ? "..." : "Mark as Picked Up"}
                 </button>
               )}
-              {d.status === 'Picked Up' && (
-                <button style={styles.button} onClick={() => handleUpdateStatus(d.deliveryId, 'Delivered')} disabled={updatingId === d.deliveryId}>
+              {d.status === 'PickedUp' && (
+                <button
+                  className="deliver-btn"
+                  onClick={() => handleUpdateStatus(d.deliveryId, 'Delivered')}
+                  disabled={updatingId === d.deliveryId}
+                >
                   {updatingId === d.deliveryId ? "..." : "Mark as Delivered"}
                 </button>
               )}
-            </li>
+            </div>
           ))}
-        </ul>
+        </div>
       )}
 
-      <h2 style={{ marginTop: '2rem' }}>Delivery History</h2>
+      <h2>Delivery History</h2>
       {deliveryHistory.length === 0 ? (
-        <p>You have no completed deliveries.</p>
+        <p>No completed deliveries yet.</p>
       ) : (
-        <ul style={styles.list}>
+        <div className="deliveries-grid">
           {deliveryHistory.map((d) => (
-            <li key={d.deliveryId} style={{ ...styles.listItem, backgroundColor: '#f0f0f0', opacity: 0.8 }}>
+            <div key={d.deliveryId} className="delivery-card history-card">
               <p><strong>Food:</strong> {d.foodName} ({d.quantity})</p>
-              <p><strong>Status:</strong> <span style={{ ...styles.status, color: 'green' }}>{d.status}</span></p>
+              <p>
+                <strong>Status:</strong>{" "}
+                <span className="status-badge delivered">{d.status}</span>
+              </p>
               <p><small>Delivered from {d.donorName} to {d.ngoName}</small></p>
-            </li>
+            </div>
           ))}
-        </ul>
+        </div>
       )}
     </div>
   );
 }
-
-// Add some styles for better presentation
-const styles = {
-    container: { maxWidth: '800px', margin: '2rem auto', padding: '1rem' },
-    list: { listStyle: 'none', padding: 0 },
-    listItem: { border: '1px solid #ccc', marginBottom: 12, padding: 16, borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' },
-    addressBlock: { display: 'flex', justifyContent: 'space-between', gap: '1rem', backgroundColor: '#f9f9f9', padding: '10px', borderRadius: '5px', margin: '10px 0' },
-    status: { fontWeight: 'bold', color: '#e67e22', padding: '3px 8px', borderRadius: '12px', backgroundColor: '#fdf3e6' },
-    button: { padding: '8px 12px', marginTop: '10px', cursor: 'pointer', backgroundColor: '#3498db', color: 'white', border: 'none', borderRadius: '5px', fontSize: '0.9rem' }
-};

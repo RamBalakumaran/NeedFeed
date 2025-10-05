@@ -5,6 +5,7 @@
   border: 1px solid #ddd;
   border-radius: 8px;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #fff;
 }
 
 .section {
@@ -23,23 +24,33 @@
   margin-top: 1rem;
 }
 
-.volunteer-list {
-  list-style: none;
-  padding-left: 0;
+.volunteer-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 10px;
 }
 
-.volunteer-item {
-  padding: 10px;
-  border-radius: 6px;
-  margin-bottom: 0.7rem;
+.volunteer-card {
   border: 1px solid #ccc;
-  user-select: none;
+  border-radius: 10px;
+  padding: 12px;
+  width: 200px;
   cursor: pointer;
+  transition: all 0.2s ease;
   background-color: #f9f9f9;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.volunteer-item.selected {
-  background-color: #cce5ff;
+.volunteer-card:hover {
+  transform: scale(1.03);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.volunteer-card.selected {
+  border: 2px solid #4caf50;
+  background-color: #e8f5e9;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.2);
 }
 
 .book-button {
@@ -54,12 +65,11 @@
   cursor: pointer;
   font-weight: 600;
   margin-top: 1rem;
+  transition: background 0.2s ease;
 }
 
-.booking-status {
-  margin-top: 1rem;
-  text-align: center;
-  font-weight: bold;
+.book-button:hover {
+  background-color: #219150;
 }
 
 .error {

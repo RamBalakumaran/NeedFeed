@@ -1,15 +1,17 @@
+// db.js
 const mysql = require('mysql2');
 
-const connection = mysql.createConnection({
-  host: 'localhost', 
-  user: 'root',      
-  password: 'ram@3010',  
-  database: 'needfeed' 
+const pool = mysql.createPool({
+  host: 'localhost',
+  user: 'root',
+  password: 'ram@3010',
+  database: 'needfeed',
+  waitForConnections: true,
+  connectionLimit: 10,   // max 10 simultaneous connections
+  queueLimit: 0
 });
 
-connection.connect(error => {
-  if (error) throw error;
-  console.log("Successfully connected to the database.");
-});
+// Use promise-based API for easier async/await queries
+const db = pool.promise();
 
-module.exports = connection;
+module.exports = db;

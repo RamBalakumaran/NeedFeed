@@ -10,7 +10,7 @@ const DonorRequestsPage = () => {
 
   const fetchRequests = async () => {
     try {
-      const res = await axios.get("http://localhost:3001/api/feed/donor/requests", {
+      const res = await axios.get("http://localhost:3001/api/feed/donor-requests", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setRequests(res.data);
@@ -21,12 +21,13 @@ const DonorRequestsPage = () => {
 
   const handleUpdate = async (id, status) => {
     try {
+      // Status must be "Approved" or "Rejected"
       await axios.put(
         `http://localhost:3001/api/feed/donor/request/${id}`,
         { status },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      fetchRequests();
+      fetchRequests(); // refresh list
     } catch (err) {
       alert(err.response?.data?.message || "Error updating request");
     }
